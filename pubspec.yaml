@@ -20,8 +20,6 @@ dependencies:
   drift: ^2.22.1
   sqlite3_flutter_libs: ^0.5.28
 
-  # Authentication
-  local_auth: ^2.3.0
 
   # Utils
   intl: ^0.20.2
