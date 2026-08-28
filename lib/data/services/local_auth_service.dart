@@ -12,9 +12,14 @@ class LocalAuthService implements AuthService {
 
   @override
   Future<bool> isBiometricAvailable() async {
-    if (!await _localAuth.canCheckBiometrics) return false;
-    final biometrics = await _localAuth.getAvailableBiometrics();
-    return biometrics.isNotEmpty;
+    try {
+      if (!await _localAuth.canCheckBiometrics) return false;
+      final biometrics = await _localAuth.getAvailableBiometrics();
+      return biometrics.isNotEmpty;
+    } catch (_) {
+      // Plataforma sem suporte ao plugin (ex.: testes): sem biometria.
+      return false;
+    }
   }
 
   @override

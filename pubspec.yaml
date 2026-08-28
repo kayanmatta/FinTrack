@@ -23,6 +23,10 @@ dependencies:
   # Auth
   local_auth: ^2.3.0
 
+  # Security
+  crypto: ^3.0.5
+  shared_preferences: ^2.3.4
+
 
   # Utils
   intl: ^0.20.2
