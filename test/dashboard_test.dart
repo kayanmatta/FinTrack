@@ -3,8 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:fintrack/core/theme/app_theme.dart';
+import 'package:fintrack/domain/entities/account_entity.dart';
+import 'package:fintrack/domain/entities/category_entity.dart';
 import 'package:fintrack/domain/entities/transaction_entity.dart';
+import 'package:fintrack/domain/repositories/account_repository.dart';
+import 'package:fintrack/domain/repositories/category_repository.dart';
 import 'package:fintrack/domain/repositories/transaction_repository.dart';
+import 'package:fintrack/presentation/providers/account_provider.dart';
+import 'package:fintrack/presentation/providers/category_provider.dart';
 import 'package:fintrack/presentation/providers/transaction_provider.dart';
 import 'package:fintrack/presentation/screens/dashboard_screen.dart';
 
@@ -37,6 +43,63 @@ class FakeTransactionRepository implements TransactionRepository {
   Future<void> delete(int id) async {}
 }
 
+/// Repositório fake de categorias (lista fixa).
+class FakeCategoryRepository implements CategoryRepository {
+  FakeCategoryRepository(this._items);
+
+  final List<CategoryEntity> _items;
+
+  @override
+  Stream<List<CategoryEntity>> watchAll() async* {
+    yield List.of(_items);
+  }
+
+  @override
+  Future<int> create({
+    required String name,
+    required String icon,
+    required String color,
+    required String type,
+  }) async =>
+      0;
+
+  @override
+  Future<void> update(CategoryEntity category) async {}
+
+  @override
+  Future<void> delete(int id) async {}
+
+  @override
+  Future<void> ensureDefaultCategories() async {}
+}
+
+/// Repositório fake de contas (lista fixa).
+class FakeAccountRepository implements AccountRepository {
+  FakeAccountRepository(this._items);
+
+  final List<AccountEntity> _items;
+
+  @override
+  Stream<List<AccountEntity>> watchAll() async* {
+    yield List.of(_items);
+  }
+
+  @override
+  Future<int> create({
+    required String name,
+    required String type,
+    required int initialBalance,
+    required String color,
+  }) async =>
+      0;
+
+  @override
+  Future<void> update(AccountEntity account) async {}
+
+  @override
+  Future<void> delete(int id) async {}
+}
+
 void main() {
   testWidgets('Exibe os 4 cards de resumo com variação vs mês anterior', (
     tester,
@@ -49,6 +112,29 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          categoryRepositoryProvider.overrideWithValue(
+            FakeCategoryRepository([
+              const CategoryEntity(
+                id: 1,
+                name: 'Mercado',
+                icon: 'shopping_cart',
+                color: '#EF4444',
+                type: 'despesa',
+                isDefault: true,
+              ),
+              const CategoryEntity(
+                id: 2,
+                name: 'Transporte',
+                icon: 'directions_car',
+                color: '#3B82F6',
+                type: 'despesa',
+                isDefault: true,
+              ),
+            ]),
+          ),
+          accountRepositoryProvider.overrideWithValue(
+            FakeAccountRepository([]),
+          ),
           transactionRepositoryProvider.overrideWithValue(
             FakeTransactionRepository([
               TransactionEntity(
@@ -58,27 +144,27 @@ void main() {
                 categoryId: null,
                 accountId: null,
                 date: thisMonth,
-                description: null,
+                description: 'Salário mensal',
                 createdAt: thisMonth,
               ),
               TransactionEntity(
                 id: 2,
                 type: 'despesa',
                 amount: 120000,
-                categoryId: null,
+                categoryId: 1,
                 accountId: null,
                 date: thisMonth,
-                description: null,
+                description: 'Compras do mês',
                 createdAt: thisMonth,
               ),
               TransactionEntity(
                 id: 3,
                 type: 'despesa',
                 amount: 30000,
-                categoryId: null,
+                categoryId: 2,
                 accountId: null,
                 date: thisMonth,
-                description: null,
+                description: 'Aplicativo de corrida',
                 createdAt: thisMonth,
               ),
               TransactionEntity(
@@ -88,17 +174,17 @@ void main() {
                 categoryId: null,
                 accountId: null,
                 date: previousMonth,
-                description: null,
+                description: 'Freelance',
                 createdAt: previousMonth,
               ),
               TransactionEntity(
                 id: 5,
                 type: 'despesa',
                 amount: 100000,
-                categoryId: null,
+                categoryId: 1,
                 accountId: null,
                 date: previousMonth,
-                description: null,
+                description: 'Aluguel',
                 createdAt: previousMonth,
               ),
             ]),
@@ -130,5 +216,32 @@ void main() {
     expect(find.text('100,0% vs mês anterior'), findsOneWidget);
     expect(find.text('50,0% vs mês anterior'), findsOneWidget);
     expect(find.text('150,0% vs mês anterior'), findsOneWidget);
+
+    // Seções de gráficos e últimas transações.
+    expect(find.text('Gastos por categoria'), findsOneWidget);
+    expect(find.text('Evolução de despesas'), findsOneWidget);
+
+    // Donut: legenda com nomes, valores e percentuais (os percentuais
+    // das fatias são pintados no canvas, então verificamos a legenda).
+    expect(find.text('Mercado'), findsWidgets);
+    expect(find.text('Transporte'), findsWidgets);
+    expect(find.text('R\$ 1.200,00'), findsOneWidget);
+    expect(find.text('R\$ 300,00'), findsOneWidget);
+    expect(find.text('80%'), findsOneWidget);
+    expect(find.text('20%'), findsOneWidget);
+
+    // Últimas transações: rola até a seção e verifica as 5 mais recentes.
+    final latestHeader = find.text('Últimas transações');
+    await tester.dragUntilVisible(
+      latestHeader,
+      find.byType(ListView).first,
+      const Offset(0, -300),
+    );
+    expect(latestHeader, findsOneWidget);
+    expect(find.text('Salário mensal'), findsOneWidget);
+    expect(find.text('Compras do mês'), findsOneWidget);
+    expect(find.text('Aplicativo de corrida'), findsOneWidget);
+    expect(find.text('Freelance'), findsOneWidget);
+    expect(find.text('Aluguel'), findsOneWidget);
   });
 }
