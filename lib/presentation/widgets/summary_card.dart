@@ -41,12 +41,6 @@ class SummaryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(
-                radius: 12,
-                backgroundColor: accent.withValues(alpha: 0.2),
-                child: Icon(icon, size: 12, color: accent),
-              ),
-              const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   title,
@@ -57,6 +51,15 @@ class SummaryCard extends StatelessWidget {
                     fontSize: 12,
                   ),
                 ),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 14, color: accent),
               ),
             ],
           ),
@@ -87,7 +90,7 @@ class _ChangeBadge extends StatelessWidget {
     if (change == null) {
       return const Text(
         'Sem base de comparação',
-        style: TextStyle(color: AppColors.textDisabled, fontSize: 12),
+        style: TextStyle(color: AppColors.textDisabled, fontSize: 11),
       );
     }
     final rising = change! >= 0;
@@ -105,7 +108,7 @@ class _ChangeBadge extends StatelessWidget {
         const SizedBox(width: 2),
         Text(
           '$label% vs mês anterior',
-          style: TextStyle(color: color, fontSize: 12),
+          style: TextStyle(color: color, fontSize: 11),
         ),
       ],
     );

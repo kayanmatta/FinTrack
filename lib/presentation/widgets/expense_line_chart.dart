@@ -67,9 +67,13 @@ class ExpenseLineChart extends StatelessWidget {
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 24,
+              interval: 1,
               getTitlesWidget: (value, meta) {
                 final index = value.toInt();
-                if (index < 0 || index >= evolution.length) {
+                // Ignora posições fracionárias para não duplicar rótulos.
+                if (value != index.toDouble() ||
+                    index < 0 ||
+                    index >= evolution.length) {
                   return const SizedBox.shrink();
                 }
                 final month = evolution[index].month;
@@ -101,16 +105,16 @@ class ExpenseLineChart extends StatelessWidget {
             ],
             isCurved: true,
             preventCurveOverShooting: true,
-            color: AppColors.expense,
+            color: AppColors.primaryLight,
             barWidth: 2.5,
             dotData: FlDotData(
               getDotPainter: (spot, xPercentage, barData, index) =>
                   FlDotCirclePainter(
                     radius: index == lastIndex ? 6 : 3.5,
                     color: index == lastIndex
-                        ? AppColors.expense
+                        ? AppColors.primaryLight
                         : AppColors.background,
-                    strokeColor: AppColors.expense,
+                    strokeColor: AppColors.primaryLight,
                     strokeWidth: 2,
                   ),
             ),
@@ -120,8 +124,8 @@ class ExpenseLineChart extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppColors.expense.withValues(alpha: 0.25),
-                  AppColors.expense.withValues(alpha: 0),
+                  AppColors.primaryLight.withValues(alpha: 0.25),
+                  AppColors.primaryLight.withValues(alpha: 0),
                 ],
               ),
             ),

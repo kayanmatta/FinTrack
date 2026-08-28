@@ -205,10 +205,11 @@ void main() {
     expect(find.text('Despesas'), findsOneWidget);
     expect(find.text('Economia'), findsOneWidget);
 
-    // Valores: saldo 3.500, receitas 4.000, despesas 1.500, economia 2.500.
+    // Valores: saldo 3.500, receitas 4.000, despesas 1.500 (também no
+    // centro do donut), economia 2.500.
     expect(find.text('R\$ 3.500,00'), findsOneWidget);
     expect(find.text('R\$ 4.000,00'), findsOneWidget);
-    expect(find.text('R\$ 1.500,00'), findsOneWidget);
+    expect(find.text('R\$ 1.500,00'), findsNWidgets(2));
     expect(find.text('R\$ 2.500,00'), findsOneWidget);
 
     // Variações percentuais vs mês anterior.
@@ -226,6 +227,8 @@ void main() {
     expect(find.text('Mercado'), findsWidgets);
     expect(find.text('Transporte'), findsWidgets);
     expect(find.text('R\$ 1.200,00'), findsOneWidget);
+    // Valor aparece no card de Despesas e no centro do donut.
+    expect(find.text('R\$ 1.500,00'), findsNWidgets(2));
     expect(find.text('R\$ 300,00'), findsOneWidget);
     expect(find.text('80%'), findsOneWidget);
     expect(find.text('20%'), findsOneWidget);
