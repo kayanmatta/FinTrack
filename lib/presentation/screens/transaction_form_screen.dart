@@ -8,35 +8,63 @@ import '../../core/utils/category_icons.dart';
 import '../../core/utils/color_utils.dart';
 import '../../core/utils/currency_utils.dart';
 import '../../domain/entities/category_entity.dart';
+import '../../domain/entities/transaction_entity.dart';
 import '../providers/account_provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/transaction_provider.dart';
 
-/// Formulário de registro de uma nova transação (S3-01).
+/// Formulário de criação e edição de transações (S3-01, S3-04, S3-05).
 ///
 /// Tipo (receita/despesa), valor, categoria em grade de ícones,
-/// data, descrição e conta.
-class NewTransactionScreen extends StatefulWidget {
-  const NewTransactionScreen({super.key});
+/// data, descrição e conta. Com [initial], edita e permite excluir.
+class TransactionFormScreen extends StatefulWidget {
+  const TransactionFormScreen({super.key, this.initial});
+
+  /// Transação a editar; `null` para criar uma nova.
+  final TransactionEntity? initial;
 
   @override
-  State<NewTransactionScreen> createState() => _NewTransactionScreenState();
+  State<TransactionFormScreen> createState() => _TransactionFormScreenState();
 }
 
-class _NewTransactionScreenState extends State<NewTransactionScreen> {
-  final _amountController = TextEditingController();
-  final _descriptionController = TextEditingController();
+class _TransactionFormScreenState extends State<TransactionFormScreen> {
+  late final TextEditingController _amountController;
+  late final TextEditingController _descriptionController;
   final _formKey = GlobalKey<FormState>();
 
-  String _type = 'despesa';
-  int? _categoryId;
-  int? _accountId;
-  late DateTime _date = _today();
+  late String _type;
+  late int? _categoryId;
+  late int? _accountId;
+  late DateTime _date;
   String? _amountError;
+
+  bool get _editing => widget.initial != null;
 
   static DateTime _today() {
     final now = DateTime.now();
     return DateTime(now.year, now.month, now.day);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final initial = widget.initial;
+    _amountController = TextEditingController(
+      text: initial == null
+          ? ''
+          : (initial.amount / 100)
+              .toStringAsFixed(2)
+              .replaceFirst('.', ','),
+    );
+    _descriptionController = TextEditingController(
+      text: initial?.description ?? '',
+    );
+    _type = initial?.type ?? 'despesa';
+    _categoryId = initial?.categoryId;
+    _accountId = initial?.accountId;
+    _date = initial != null
+        ? DateTime(initial.date.year, initial.date.month, initial.date.day)
+        : _today();
   }
 
   @override
@@ -56,23 +84,69 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
     if (picked != null) setState(() => _date = picked);
   }
 
-  Future<void> _saveTransaction(WidgetRef ref) async {
+  String? get _description {
+    final text = _descriptionController.text.trim();
+    return text.isEmpty ? null : text;
+  }
+
+  Future<void> _save(WidgetRef ref) async {
     final amount = parseCents(_amountController.text);
     setState(() {
       _amountError = amount <= 0 ? 'Informe um valor maior que zero.' : null;
     });
     if (amount <= 0) return;
 
-    await ref.read(transactionRepositoryProvider).create(
+    final repository = ref.read(transactionRepositoryProvider);
+    final initial = widget.initial;
+    if (initial == null) {
+      await repository.create(
+        type: _type,
+        amount: amount,
+        categoryId: _categoryId,
+        accountId: _accountId,
+        date: _date,
+        description: _description,
+      );
+    } else {
+      await repository.update(
+        initial.copyWith(
           type: _type,
           amount: amount,
-          categoryId: _categoryId,
-          accountId: _accountId,
+          categoryId: () => _categoryId,
+          accountId: () => _accountId,
           date: _date,
-          description: _descriptionController.text.trim().isEmpty
-              ? null
-              : _descriptionController.text.trim(),
-        );
+          description: () => _description,
+        ),
+      );
+    }
+    if (mounted) Navigator.of(context).pop(true);
+  }
+
+  Future<void> _delete(WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Excluir transação'),
+        content: const Text(
+          'Tem certeza que deseja excluir esta transação? '
+          'Esta ação não pode ser desfeita.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.expense),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    await ref.read(transactionRepositoryProvider).delete(widget.initial!.id);
     if (mounted) Navigator.of(context).pop(true);
   }
 
@@ -83,7 +157,17 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
         final categories = ref.watch(categoriesProvider);
         final accounts = ref.watch(accountsProvider);
         return Scaffold(
-          appBar: AppBar(title: const Text('Nova transação')),
+          appBar: AppBar(
+            title: Text(_editing ? 'Editar transação' : 'Nova transação'),
+            actions: [
+              if (_editing)
+                IconButton(
+                  tooltip: 'Excluir',
+                  onPressed: () => _delete(ref),
+                  icon: const Icon(Icons.delete_outline),
+                ),
+            ],
+          ),
           body: Form(
             key: _formKey,
             child: ListView(
@@ -203,7 +287,7 @@ class _NewTransactionScreenState extends State<NewTransactionScreen> {
                 ),
                 const SizedBox(height: 24),
                 FilledButton.icon(
-                  onPressed: () => _saveTransaction(ref),
+                  onPressed: () => _save(ref),
                   icon: const Icon(Icons.check),
                   label: const Text('Salvar'),
                 ),

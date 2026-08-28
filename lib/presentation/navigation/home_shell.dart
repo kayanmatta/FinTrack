@@ -5,8 +5,8 @@ import '../screens/configuracoes_screen.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/extrato_screen.dart';
 import '../screens/metas_screen.dart';
-import '../screens/new_transaction_screen.dart';
 import '../screens/orcamento_screen.dart';
+import '../screens/transaction_form_screen.dart';
 
 /// Destino da navegação principal.
 class _Destination {
@@ -52,7 +52,7 @@ class _HomeShellState extends State<HomeShell> {
 
   void _newTransaction() {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const NewTransactionScreen()),
+      MaterialPageRoute(builder: (_) => const TransactionFormScreen()),
     );
   }
 

@@ -12,6 +12,7 @@ import '../../domain/entities/transaction_entity.dart';
 import '../providers/account_provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/transaction_provider.dart';
+import 'transaction_form_screen.dart';
 
 /// Lista de receitas e despesas agrupadas por dia (S3-03).
 ///
@@ -109,6 +110,13 @@ class _TransactionTile extends StatelessWidget {
     final amountColor =
         transaction.isIncome ? AppColors.income : AppColors.expense;
     return ListTile(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => TransactionFormScreen(initial: transaction),
+          ),
+        );
+      },
       leading: CircleAvatar(
         backgroundColor: color.withValues(alpha: 0.2),
         child: Icon(

@@ -14,4 +14,10 @@ abstract class TransactionRepository {
     required DateTime date,
     String? description,
   });
+
+  /// Atualiza todos os campos de uma transação existente.
+  Future<void> update(TransactionEntity transaction);
+
+  /// Exclui a transação.
+  Future<void> delete(int id);
 }
