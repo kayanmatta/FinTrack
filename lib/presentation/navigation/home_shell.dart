@@ -5,6 +5,7 @@ import '../screens/configuracoes_screen.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/extrato_screen.dart';
 import '../screens/metas_screen.dart';
+import '../screens/new_transaction_screen.dart';
 import '../screens/orcamento_screen.dart';
 
 /// Destino da navegação principal.
@@ -49,12 +50,27 @@ class _HomeShellState extends State<HomeShell> {
 
   void _select(int index) => setState(() => _index = index);
 
+  void _newTransaction() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const NewTransactionScreen()),
+    );
+  }
+
+  FloatingActionButton get _newTransactionFab {
+    return FloatingActionButton.extended(
+      onPressed: _newTransaction,
+      icon: const Icon(Icons.add),
+      label: const Text('Nova transação'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth >= 700) {
           return Scaffold(
+            floatingActionButton: _newTransactionFab,
             body: Row(
               children: [
                 NavigationRail(
@@ -78,6 +94,7 @@ class _HomeShellState extends State<HomeShell> {
           );
         }
         return Scaffold(
+          floatingActionButton: _newTransactionFab,
           body: IndexedStack(index: _index, children: _screens),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _index,
