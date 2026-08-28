@@ -61,6 +61,9 @@ class FakeCategoryRepository implements CategoryRepository {
     _items.removeWhere((item) => item.id == id);
     _emit();
   }
+
+  @override
+  Future<void> ensureDefaultCategories() async {}
 }
 
 void main() {

@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:fintrack/main.dart';
+import 'package:fintrack/presentation/providers/startup_provider.dart';
 
 /// Simula um dispositivo sem biometria para o plugin local_auth.
 void _mockLocalAuthChannel() {
@@ -43,7 +44,12 @@ void main() {
   testWidgets('Primeiro acesso cria PIN e desbloqueia o app', (tester) async {
     SharedPreferences.setMockInitialValues({});
     _mockLocalAuthChannel();
-    await tester.pumpWidget(const ProviderScope(child: FinTrackApp()));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [startupProvider.overrideWith((ref) async {})],
+        child: const FinTrackApp(),
+      ),
+    );
     await _awaitLoginReady(tester);
     expect(find.text('Criar PIN'), findsOneWidget);
 
@@ -58,7 +64,12 @@ void main() {
   testWidgets('Navega para a tela de metas após desbloquear', (tester) async {
     SharedPreferences.setMockInitialValues({});
     _mockLocalAuthChannel();
-    await tester.pumpWidget(const ProviderScope(child: FinTrackApp()));
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [startupProvider.overrideWith((ref) async {})],
+        child: const FinTrackApp(),
+      ),
+    );
     await _awaitLoginReady(tester);
     await _typePin(tester, ['1', '2', '3', '4']);
     await _typePin(tester, ['1', '2', '3', '4']);
