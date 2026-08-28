@@ -1,4 +1,4 @@
-# FinTrack — Guia de Git Flow e Organização de Branches
+# FinTrack — Guia de Git Flow e Organização de Branches (Solo)
 
 ## Modelo de Branches
 
@@ -7,12 +7,12 @@ main ─────────────────────────
  │
  ├── develop ───────────────────────────────────── (integração contínua)
  │    │
- │    ├── feature/s1-project-setup          [Kayan]
- │    ├── feature/s1-drift-sqlite            [Ryan]
- │    ├── feature/s2-login-screen            [Kayan]
- │    ├── feature/s2-local-auth              [Ryan]
- │    ├── feature/s3-new-transaction         [Kayan]
- │    ├── feature/s4-summary-cards           [Kayan]
+ │    ├── feature/s1-project-setup
+ │    ├── feature/s1-drift-sqlite
+ │    ├── feature/s2-login-screen
+ │    ├── feature/s2-local-auth
+ │    ├── feature/s3-new-transaction
+ │    ├── feature/s4-summary-cards
  │    ├── ...
  │    │
  │    └── (merge de volta para develop)
@@ -50,99 +50,91 @@ main ─────────────────────────
 
 **Sprint 1 — Fundação**
 ```
-feature/s1-project-setup          [Kayan]  → setup do Flutter, configs iniciais
-feature/s1-drift-sqlite           [Ryan]   → banco de dados + tabelas
-feature/s1-architecture           [Ryan]   → estrutura de pastas em camadas
-feature/s1-design-system          [Kayan]  → tema, cores, tipografia
-feature/s1-responsive-layout      [Kayan]  → breakpoints + componentes adaptativos
-feature/s1-navigation             [Ryan]   → rotas principais
+feature/s1-project-setup          → setup do Flutter, configs iniciais
+feature/s1-drift-sqlite           → banco de dados + tabelas
+feature/s1-architecture           → estrutura de pastas em camadas
+feature/s1-design-system          → tema, cores, tipografia
+feature/s1-responsive-layout      → breakpoints + componentes adaptativos
+feature/s1-navigation             → rotas principais
 ```
 
 **Sprint 2 — Autenticação e Categorias**
 ```
-feature/s2-login-screen           [Kayan]  → UI da tela de login
-feature/s2-local-auth             [Ryan]   → integração com biometria/Face ID/PIN
-feature/s2-crud-categories        [Ryan]   → criar/editar/excluir categorias
-feature/s2-default-categories     [Ryan]   → categorias pré-cadastradas
-feature/s2-crud-accounts          [Ryan]   → CRUD de contas financeiras
+feature/s2-login-screen           → UI da tela de login
+feature/s2-local-auth             → integração com biometria/Face ID/PIN
+feature/s2-crud-categories        → criar/editar/excluir categorias
+feature/s2-default-categories     → categorias pré-cadastradas
+feature/s2-crud-accounts          → CRUD de contas financeiras
 ```
 
 **Sprint 3 — Transações**
 ```
-feature/s3-new-transaction        [Kayan]  → tela de nova transação (formulário)
-feature/s3-save-transaction       [Ryan]   → persistência no banco via Drift
-feature/s3-list-transactions      [Ryan]   → listagem agrupada por dia
-feature/s3-edit-transaction       [Ryan]   → edição de campos
-feature/s3-delete-transaction     [Ryan]   → exclusão com confirmação
-feature/s3-statement-screen       [Kayan]  → tela de extrato com filtros
+feature/s3-new-transaction        → tela de nova transação (formulário)
+feature/s3-save-transaction       → persistência no banco via Drift
+feature/s3-list-transactions      → listagem agrupada por dia
+feature/s3-edit-transaction       → edição de campos
+feature/s3-delete-transaction     → exclusão com confirmação
+feature/s3-statement-screen       → tela de extrato com filtros
 ```
 
 **Sprint 4 — Dashboard**
 ```
-feature/s4-summary-cards          [Kayan]  → 4 cards com variação %
-feature/s4-category-chart         [Kayan]  → gráfico de pizza/donut
-feature/s4-expense-evolution      [Ryan]   → gráfico de linha (6 meses)
-feature/s4-recent-transactions    [Ryan]   → lista das 5 últimas
-feature/s4-calculation-formulas   [Kayan]  → fórmulas reutilizáveis em /core
-feature/s4-responsive-dashboard   [Kayan]  → grid desktop + cards mobile
+feature/s4-summary-cards          → 4 cards com variação %
+feature/s4-category-chart         → gráfico de pizza/donut
+feature/s4-expense-evolution      → gráfico de linha (6 meses)
+feature/s4-recent-transactions    → lista das 5 últimas
+feature/s4-calculation-formulas   → fórmulas reutilizáveis em /core
+feature/s4-responsive-dashboard   → grid desktop + cards mobile
 ```
 
 **Sprint 5 — Análises**
 ```
-feature/s5-analytics-metrics      [Kayan]  → cards de métricas
-feature/s5-top-expenses           [Kayan]  → ranking top 5
-feature/s5-monthly-comparison     [Ryan]   → gráfico de barras comparativo
-feature/s5-month-summary          [Ryan]   → resumo do mês (totais + média)
-feature/s5-insights-system        [Kayan]  → cards automáticos de insights
-feature/s5-alert-templates        [Kayan]  → textos padronizados reutilizáveis
-feature/s5-filters-selector       [Ryan]   → seletor de mês + filtros
+feature/s5-analytics-metrics      → cards de métricas
+feature/s5-top-expenses           → ranking top 5
+feature/s5-monthly-comparison     → gráfico de barras comparativo
+feature/s5-month-summary          → resumo do mês (totais + média)
+feature/s5-insights-system        → cards automáticos de insights
+feature/s5-alert-templates        → textos padronizados reutilizáveis
+feature/s5-filters-selector       → seletor de mês + filtros
 ```
 
 **Sprint 6 — Orçamento**
 ```
-feature/s6-budget-definition      [Kayan]  → tela de definir orçamento
-feature/s6-budget-progress        [Kayan]  → barras de progresso por categoria
-feature/s6-budget-alerts          [Kayan]  → avisos de 80% e 100%
-feature/s6-budget-remaining       [Ryan]   → saldo restante por categoria
-feature/s6-budget-summary         [Ryan]   → card geral (alocado/gasto/disponível)
-feature/s6-budget-edit            [Ryan]   → editar valores alocados
+feature/s6-budget-definition      → tela de definir orçamento
+feature/s6-budget-progress        → barras de progresso por categoria
+feature/s6-budget-alerts          → avisos de 80% e 100%
+feature/s6-budget-remaining       → saldo restante por categoria
+feature/s6-budget-summary         → card geral (alocado/gasto/disponível)
+feature/s6-budget-edit            → editar valores alocados
 ```
 
 **Sprint 7 — Metas**
 ```
-feature/s7-create-goal            [Ryan]   → criar meta (nome, alvo, prazo)
-feature/s7-add-contribution       [Ryan]   → adicionar aporte
-feature/s7-goals-list             [Kayan]  → lista com barras de progresso
-feature/s7-goal-details           [Kayan]  → detalhes + histórico de aportes
-feature/s7-goal-complete          [Kayan]  → visual de meta concluída
-feature/s7-delete-goal            [Ryan]   → exclusão com confirmação
+feature/s7-create-goal            → criar meta (nome, alvo, prazo)
+feature/s7-add-contribution       → adicionar aporte
+feature/s7-goals-list             → lista com barras de progresso
+feature/s7-goal-details           → detalhes + histórico de aportes
+feature/s7-goal-complete          → visual de meta concluída
+feature/s7-delete-goal            → exclusão com confirmação
 ```
 
 **Sprint 8 — Alertas e Polimento**
 ```
-feature/s8-notification-center    [Kayan]  → tela/ícone de notificações
-feature/s8-variation-alerts       [Kayan]  → alertas de variação mensal
-feature/s8-budget-alerts          [Kayan]  → alertas de limite de orçamento
-feature/s8-goal-alerts            [Ryan]   → alertas de meta
-feature/s8-savings-alerts         [Kayan]  → alertas de economia
-bugfix/s8-responsive-fixes        [Kayan]  → correções de responsividade
-feature/s8-performance            [Ryan]   → otimização de queries e paginação
-feature/s8-ux-polish              [Ambos]  → animações, empty states, feedback
+feature/s8-notification-center    → tela/ícone de notificações
+feature/s8-variation-alerts       → alertas de variação mensal
+feature/s8-budget-alerts          → alertas de limite de orçamento
+feature/s8-goal-alerts            → alertas de meta
+feature/s8-savings-alerts         → alertas de economia
+bugfix/s8-responsive-fixes        → correções de responsividade
+feature/s8-performance            → otimização de queries e paginação
+feature/s8-ux-polish              → animações, empty states, feedback
 ```
 
 ---
 
 ## Fluxo de Trabalho (Passo a Passo)
 
-### 1. Iniciar o projeto
-```bash
-# Criar o repositório
-git init
-git checkout -b develop
-git push -u origin main develop
-```
-
-### 2. Começar uma nova feature
+### 1. Começar uma nova feature
 ```bash
 # Sempre partir da develop atualizada
 git checkout develop
@@ -152,7 +144,7 @@ git pull origin develop
 git checkout -b feature/s4-summary-cards
 ```
 
-### 3. Desenvolver e commitar
+### 2. Desenvolver e commitar
 ```bash
 # Commits frequentes e descritivos
 git add .
@@ -162,7 +154,7 @@ git add .
 git commit -m "feat: implementar variação percentual vs mês anterior"
 ```
 
-### 4. Manter atualizado com develop
+### 3. Manter atualizado com develop
 ```bash
 # Fazer rebase periodicamente para evitar conflitos grandes
 git fetch origin
@@ -173,7 +165,7 @@ git add .
 git rebase --continue
 ```
 
-### 5. Subir a branch e criar Pull Request
+### 4. Subir a branch e criar Pull Request
 ```bash
 git push -u origin feature/s4-summary-cards
 ```
@@ -183,13 +175,14 @@ Depois abrir o Pull Request no GitHub:
 - **Título:** `[S4] Dashboard — Cards de Resumo`
 - **Descrição:** O que foi feito, como testar, screenshots
 
-### 6. Code Review
-- **Kayan** faz PR → **Ryan** revisa e aprova
-- **Ryan** faz PR → **Kayan** revisa e aprova
-- Aprova ou pede alterações
-- Após aprovação → merge via **Squash and Merge**
+> Mesmo trabalhando solo, manter o hábito de abrir PR ajuda a organizar o que foi entregue em cada história e deixa o histórico do repositório legível.
 
-### 7. Limpar após merge
+### 5. Auto Review
+- Antes de mergear, revisar o próprio PR passando pelo **checklist do template** e pela **DoD** da sprint
+- Testar no mobile e no desktop (quando aplicável)
+- Após o auto review → merge via **Squash and Merge**
+
+### 6. Limpar após merge
 ```bash
 # Voltar para develop e atualizar
 git checkout develop
@@ -262,16 +255,16 @@ Sprint X — Nome do Sprint
 
 ## Proteção de Branches (Configurar no GitHub)
 
+No trabalho solo, as proteções servem como **disciplina pessoal** — como admin você pode passar por cima delas quando precisar.
+
 ### `main`
 - ✅ Require pull request before merging
-- ✅ Require 2 approvals (Kayan + Ryan aprovam)
-- ✅ Require status checks (build passing)
+- ✅ Require status checks (build passing, se configurar CI)
 - ❌ No direct push
 
 ### `develop`
-- ✅ Require pull request before merging
-- ✅ Require 1 approval (o outro dev aprova)
-- ❌ No direct push
+- ✅ Require pull request before merging (força passar pelo checklist do PR)
+- Merge direto permitido apenas para correções triviais (docs, README)
 
 ### Como configurar
 ```
@@ -285,14 +278,12 @@ GitHub → Settings → Branches → Add rule
 ### Criar tag ao final de cada versão
 ```bash
 # Ao final do Sprint 4 (MVP funcional)
-# Responsável: Ryan (infraestrutura)
 git checkout main
 git merge develop
 git tag -a v0.1.0 -m "MVP — Dashboard + Transações + Extrato"
 git push origin v0.1.0
 
 # Ao final do Sprint 8 (V1 completa)
-# Responsável: Kayan (product owner)
 git tag -a v1.0.0 -m "Versão 1.0 — FinTrack completo"
 git push origin v1.0.0
 ```
@@ -397,46 +388,8 @@ Thumbs.db
 2. Commitar        →  tipo: descrição curta (português)
 3. Atualizar       →  rebase com develop frequentemente
 4. Pull Request    →  de feature → develop, com template
-5. Code Review     →  o outro dev aprova (Kayan ↔ Ryan)
+5. Auto Review     →  passar pelo checklist do PR e pela DoD
 6. Merge           →  squash and merge
 7. Limpar          →  deletar branch local e remota
 8. Release         →  develop → release/vX → main + tag
 ```
-
----
-
-## Resumo de Branches por Responsável
-
-| Sprint | 🟣 Kayan (UI/UX + Análises) | 🔵 Ryan (Dados + CRUDs) |
-|---|---|---|
-| **S1** | `feature/s1-project-setup` | `feature/s1-drift-sqlite` |
-| | `feature/s1-design-system` | `feature/s1-architecture` |
-| | `feature/s1-responsive-layout` | `feature/s1-navigation` |
-| **S2** | `feature/s2-login-screen` | `feature/s2-local-auth` |
-| | | `feature/s2-crud-categories` |
-| | | `feature/s2-default-categories` |
-| | | `feature/s2-crud-accounts` |
-| **S3** | `feature/s3-new-transaction` | `feature/s3-save-transaction` |
-| | `feature/s3-statement-screen` | `feature/s3-list-transactions` |
-| | | `feature/s3-edit-transaction` |
-| | | `feature/s3-delete-transaction` |
-| **S4** | `feature/s4-summary-cards` | `feature/s4-expense-evolution` |
-| | `feature/s4-category-chart` | `feature/s4-recent-transactions` |
-| | `feature/s4-calculation-formulas` | |
-| | `feature/s4-responsive-dashboard` | |
-| **S5** | `feature/s5-analytics-metrics` | `feature/s5-monthly-comparison` |
-| | `feature/s5-top-expenses` | `feature/s5-month-summary` |
-| | `feature/s5-insights-system` | `feature/s5-filters-selector` |
-| | `feature/s5-alert-templates` | |
-| **S6** | `feature/s6-budget-definition` | `feature/s6-budget-remaining` |
-| | `feature/s6-budget-progress` | `feature/s6-budget-summary` |
-| | `feature/s6-budget-alerts` | `feature/s6-budget-edit` |
-| **S7** | `feature/s7-goals-list` | `feature/s7-create-goal` |
-| | `feature/s7-goal-details` | `feature/s7-add-contribution` |
-| | `feature/s7-goal-complete` | `feature/s7-delete-goal` |
-| **S8** | `feature/s8-notification-center` | `feature/s8-goal-alerts` |
-| | `feature/s8-variation-alerts` | `feature/s8-performance` |
-| | `feature/s8-budget-alerts` | |
-| | `feature/s8-savings-alerts` | |
-| | `bugfix/s8-responsive-fixes` | |
-| | `feature/s8-ux-polish` *(ambos)* | `feature/s8-ux-polish` *(ambos)* |
