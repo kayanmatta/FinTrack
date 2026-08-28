@@ -50,8 +50,13 @@ DashboardMetrics dashboardMetrics(
   final previousIncome = incomeOfMonth(transactions, previous);
   final previousExpenses = expensesOfMonth(transactions, previous);
 
+  final balance = totalBalance(transactions);
+  // Saldo ao final do mês anterior = saldo atual - resultado deste mês.
+  final previousBalance = balance - (income - expenses);
+
   return DashboardMetrics(
-    balance: totalBalance(transactions),
+    balance: balance,
+    balanceChange: percentChange(balance, previousBalance),
     income: income,
     incomeChange: percentChange(income, previousIncome),
     expenses: expenses,
@@ -143,6 +148,7 @@ bool _isSameMonth(DateTime date, DateTime reference) =>
 class DashboardMetrics {
   const DashboardMetrics({
     required this.balance,
+    required this.balanceChange,
     required this.income,
     required this.incomeChange,
     required this.expenses,
@@ -152,6 +158,7 @@ class DashboardMetrics {
   });
 
   final int balance;
+  final double? balanceChange;
   final int income;
   final double? incomeChange;
   final int expenses;
