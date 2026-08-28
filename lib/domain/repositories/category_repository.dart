@@ -18,4 +18,7 @@ abstract class CategoryRepository {
 
   /// Exclui a categoria (transações vinculadas ficam sem categoria).
   Future<void> delete(int id);
+
+  /// Garante que as categorias padrão existem no primeiro uso.
+  Future<void> ensureDefaultCategories();
 }

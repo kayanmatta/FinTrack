@@ -1,8 +1,21 @@
 import 'package:drift/drift.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entities/category_entity.dart';
 import '../../domain/repositories/category_repository.dart';
 import '../database/app_database.dart';
+
+/// Categorias pré-cadastradas no primeiro uso (nome, ícone, cor).
+const List<(String, String, String)> _defaultCategories = [
+  ('Mercado', 'shopping_cart', '#EF4444'),
+  ('Transporte', 'directions_car', '#3B82F6'),
+  ('Lazer', 'sports_esports', '#F97316'),
+  ('Saúde', 'favorite', '#10B981'),
+  ('Casa', 'home', '#EC4899'),
+  ('Educação', 'menu_book', '#8B5CF6'),
+  ('Compras', 'shopping_bag', '#F59E0B'),
+  ('Outros', 'more_horiz', '#64748B'),
+];
 
 /// Implementação Drift do repositório de categorias (camada de dados).
 class CategoryRepositoryImpl implements CategoryRepository {
@@ -71,4 +84,32 @@ class CategoryRepositoryImpl implements CategoryRepository {
           .go();
     });
   }
+
+  @override
+  Future<void> ensureDefaultCategories() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool(_seedFlagKey) == true) return;
+
+    final existing = await _db.select(_db.categories).get();
+    if (existing.isEmpty) {
+      _db.batch((batch) {
+        batch.insertAll(
+          _db.categories,
+          [
+            for (final (name, icon, color) in _defaultCategories)
+              CategoriesCompanion.insert(
+                name: name,
+                icon: icon,
+                color: color,
+                type: const Value('despesa'),
+                isDefault: const Value(true),
+              ),
+          ],
+        );
+      });
+    }
+    await prefs.setBool(_seedFlagKey, true);
+  }
+
+  static const _seedFlagKey = 'seed.categories_done';
 }
