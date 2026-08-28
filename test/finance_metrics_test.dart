@@ -67,6 +67,8 @@ void main() {
     final metrics = dashboardMetrics(transactions, reference: reference);
 
     expect(metrics.balance, 220000);
+    // Saldo anterior = 220000 - 150000 (resultado do mês) = 70000.
+    expect(metrics.balanceChange, closeTo(214.286, 0.01));
     expect(metrics.income, 300000);
     expect(metrics.incomeChange, closeTo(20.0, 0.001));
     expect(metrics.expenses, 150000);
