@@ -51,4 +51,26 @@ class TransactionRepositoryImpl implements TransactionRepository {
           ),
         );
   }
+
+  @override
+  Future<void> update(TransactionEntity transaction) {
+    return (_db.update(_db.transactions)
+          ..where((table) => table.id.equals(transaction.id)))
+        .write(
+      TransactionsCompanion(
+        type: Value(transaction.type),
+        amount: Value(transaction.amount),
+        categoryId: Value(transaction.categoryId),
+        accountId: Value(transaction.accountId),
+        date: Value(transaction.date),
+        description: Value(transaction.description),
+      ),
+    );
+  }
+
+  @override
+  Future<void> delete(int id) {
+    return (_db.delete(_db.transactions)..where((table) => table.id.equals(id)))
+        .go();
+  }
 }

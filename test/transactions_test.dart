@@ -47,4 +47,26 @@ void main() {
     expect(items.last.description, 'Compra da semana');
     expect(items.last.categoryId, categoryId);
   });
+
+  test('Atualiza e exclui transação', () async {
+    final id = await repository.create(
+      type: 'despesa',
+      amount: 1000,
+      date: DateTime(2026, 8, 20),
+      description: 'Original',
+    );
+
+    var items = await repository.watchAll().first;
+    await repository.update(
+      items.single.copyWith(amount: 2500, description: () => 'Editada'),
+    );
+
+    items = await repository.watchAll().first;
+    expect(items.single.amount, 2500);
+    expect(items.single.description, 'Editada');
+
+    await repository.delete(id);
+    items = await repository.watchAll().first;
+    expect(items, isEmpty);
+  });
 }

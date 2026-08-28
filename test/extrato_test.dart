@@ -36,6 +36,12 @@ class FakeTransactionRepository implements TransactionRepository {
     String? description,
   }) async =>
       0;
+
+  @override
+  Future<void> update(TransactionEntity transaction) async {}
+
+  @override
+  Future<void> delete(int id) async {}
 }
 
 /// Repositório fake de categorias (lista fixa).

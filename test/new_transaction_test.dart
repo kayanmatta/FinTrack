@@ -12,7 +12,7 @@ import 'package:fintrack/domain/repositories/transaction_repository.dart';
 import 'package:fintrack/presentation/providers/account_provider.dart';
 import 'package:fintrack/presentation/providers/category_provider.dart';
 import 'package:fintrack/presentation/providers/transaction_provider.dart';
-import 'package:fintrack/presentation/screens/new_transaction_screen.dart';
+import 'package:fintrack/presentation/screens/transaction_form_screen.dart';
 
 /// Repositório fake de categorias.
 class FakeCategoryRepository implements CategoryRepository {
@@ -74,6 +74,8 @@ class FakeAccountRepository implements AccountRepository {
 /// Repositório fake de transações que registra as criações.
 class FakeTransactionRepository implements TransactionRepository {
   final List<TransactionEntity> created = [];
+  final List<TransactionEntity> updated = [];
+  final List<int> deleted = [];
   int _nextId = 1;
 
   @override
@@ -104,6 +106,16 @@ class FakeTransactionRepository implements TransactionRepository {
       ),
     );
     return id;
+  }
+
+  @override
+  Future<void> update(TransactionEntity transaction) async {
+    updated.add(transaction);
+  }
+
+  @override
+  Future<void> delete(int id) async {
+    deleted.add(id);
   }
 }
 
@@ -150,7 +162,7 @@ void main() {
         ],
         child: MaterialApp(
           theme: AppTheme.dark,
-          home: const NewTransactionScreen(),
+          home: const TransactionFormScreen(),
         ),
       ),
     );
@@ -175,5 +187,90 @@ void main() {
     expect(saved.type, 'despesa');
     expect(saved.amount, 4550);
     expect(saved.categoryId, 1);
+  });
+
+  testWidgets('Edita e exclui uma transação existente', (tester) async {
+    final transactions = FakeTransactionRepository();
+    final original = TransactionEntity(
+      id: 7,
+      type: 'despesa',
+      amount: 2000,
+      categoryId: 1,
+      accountId: null,
+      date: DateTime(2026, 8, 20),
+      description: 'Lanche',
+      createdAt: DateTime(2026, 8, 20),
+    );
+
+    Widget buildApp() {
+      return ProviderScope(
+        overrides: [
+          categoryRepositoryProvider.overrideWithValue(
+            FakeCategoryRepository([
+              const CategoryEntity(
+                id: 1,
+                name: 'Mercado',
+                icon: 'shopping_cart',
+                color: '#EF4444',
+                type: 'despesa',
+                isDefault: true,
+              ),
+            ]),
+          ),
+          accountRepositoryProvider.overrideWithValue(
+            FakeAccountRepository([]),
+          ),
+          transactionRepositoryProvider.overrideWithValue(transactions),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            TransactionFormScreen(initial: original),
+                      ),
+                    );
+                  },
+                  child: const Text('Abrir'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Edição: valores pré-preenchidos e salvos via update.
+    await tester.pumpWidget(buildApp());
+    await tester.tap(find.text('Abrir'));
+    await tester.pumpAndSettle();
+    expect(find.text('Editar transação'), findsOneWidget);
+    expect(find.text('20,00'), findsOneWidget);
+
+    await tester.enterText(
+      find.widgetWithText(TextFormField, 'Valor'),
+      '25,00',
+    );
+    await tester.tap(find.text('Salvar'));
+    await tester.pumpAndSettle();
+    expect(transactions.updated, hasLength(1));
+    expect(transactions.updated.single.amount, 2500);
+    expect(transactions.updated.single.id, 7);
+
+    // Exclusão com confirmação.
+    await tester.tap(find.text('Abrir'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.delete_outline));
+    await tester.pumpAndSettle();
+    expect(find.text('Excluir transação'), findsOneWidget);
+    await tester.tap(find.text('Excluir'));
+    await tester.pumpAndSettle();
+    expect(transactions.deleted, [7]);
+    expect(find.text('Editar transação'), findsNothing);
   });
 }

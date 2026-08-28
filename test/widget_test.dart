@@ -30,6 +30,12 @@ class _NoopTransactionRepository implements TransactionRepository {
     String? description,
   }) async =>
       0;
+
+  @override
+  Future<void> update(TransactionEntity transaction) async {}
+
+  @override
+  Future<void> delete(int id) async {}
 }
 
 class _NoopCategoryRepository implements CategoryRepository {
