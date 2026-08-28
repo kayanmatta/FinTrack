@@ -152,7 +152,11 @@ class _SummaryCards extends StatelessWidget {
           crossAxisCount: crossAxisCount,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: crossAxisCount >= 2 ? 3 : 3.4,
+          childAspectRatio: crossAxisCount == 4
+              ? 2.4
+              : crossAxisCount == 2
+                  ? 2.8
+                  : 3.2,
           children: [
             SummaryCard(
               title: 'Saldo atual',

@@ -32,29 +32,50 @@ class CategoryDonutChart extends StatelessWidget {
         ),
       );
     }
+    final total = spending.fold<int>(0, (sum, item) => sum + item.amount);
     return Column(
       children: [
         SizedBox(
           height: 180,
-          child: PieChart(
-            PieChartData(
-              centerSpaceRadius: 48,
-              sectionsSpace: 2,
-              sections: [
-                for (final item in spending)
-                  PieChartSectionData(
-                    value: item.amount.toDouble(),
-                    color: _colorFor(item.categoryId),
-                    title: '${item.percentage.toStringAsFixed(0)}%',
-                    titleStyle: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              PieChart(
+                PieChartData(
+                  centerSpaceRadius: 56,
+                  sectionsSpace: 2,
+                  sections: [
+                    for (final item in spending)
+                      PieChartSectionData(
+                        value: item.amount.toDouble(),
+                        color: _colorFor(item.categoryId),
+                        title: '',
+                        radius: 28,
+                      ),
+                  ],
+                ),
+              ),
+              // Total do mês no centro do donut, como no mockup.
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    formatCents(total),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
-                    radius: 36,
                   ),
-              ],
-            ),
+                  const Text(
+                    'Total',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 12),
