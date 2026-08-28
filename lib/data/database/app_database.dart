@@ -24,7 +24,9 @@ part 'app_database.g.dart';
   ],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  /// [executor] opcional: usado em testes para injetar um banco em memória.
+  AppDatabase([QueryExecutor? executor])
+      : super(executor ?? _openConnection());
 
   @override
   int get schemaVersion => 1;
