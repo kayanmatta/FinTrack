@@ -193,4 +193,94 @@ void main() {
     expect(find.text('Compra da semana'), findsOneWidget);
     expect(find.text('Padaria'), findsOneWidget);
   });
+
+  testWidgets('Filtra por tipo, busca por texto e alterna para tabela', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          categoryRepositoryProvider.overrideWithValue(
+            FakeCategoryRepository([
+              const CategoryEntity(
+                id: 1,
+                name: 'Mercado',
+                icon: 'shopping_cart',
+                color: '#EF4444',
+                type: 'despesa',
+                isDefault: true,
+              ),
+              const CategoryEntity(
+                id: 2,
+                name: 'Salário',
+                icon: 'more_horiz',
+                color: '#10B981',
+                type: 'receita',
+                isDefault: false,
+              ),
+            ]),
+          ),
+          accountRepositoryProvider.overrideWithValue(
+            FakeAccountRepository([]),
+          ),
+          transactionRepositoryProvider.overrideWithValue(
+            FakeTransactionRepository([
+              TransactionEntity(
+                id: 1,
+                type: 'despesa',
+                amount: 4550,
+                categoryId: 1,
+                accountId: null,
+                date: today,
+                description: 'Compra da semana',
+                createdAt: today,
+              ),
+              TransactionEntity(
+                id: 2,
+                type: 'receita',
+                amount: 300000,
+                categoryId: 2,
+                accountId: null,
+                date: yesterday,
+                description: null,
+                createdAt: yesterday,
+              ),
+            ]),
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          home: const ExtratoScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    // Filtro por tipo: só despesas.
+    await tester.tap(find.text('Despesas'));
+    await tester.pump();
+    expect(find.text('+ R\$ 3.000,00'), findsNothing);
+    expect(find.text('- R\$ 45,50'), findsOneWidget);
+
+    // Busca por texto.
+    await tester.tap(find.text('Todas'));
+    await tester.pump();
+    await tester.enterText(find.byType(TextField).first, 'Compra');
+    await tester.pump();
+    expect(find.text('Compra da semana'), findsOneWidget);
+    expect(find.text('+ R\$ 3.000,00'), findsNothing);
+
+    // Tabela: colunas e linha visível.
+    await tester.tap(find.byIcon(Icons.clear));
+    await tester.pump();
+    await tester.tap(find.byIcon(Icons.table_chart));
+    await tester.pumpAndSettle();
+    expect(find.text('Data'), findsOneWidget);
+    expect(find.text('Valor'), findsOneWidget);
+    expect(find.text('Compra da semana'), findsOneWidget);
+  });
 }
