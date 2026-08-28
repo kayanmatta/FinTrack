@@ -258,7 +258,7 @@ Princípios adotados:
 ## Clonar o projeto
 
 ```bash
-git clone https://github.com/SolucoesDev/fintrack.git
+git clone https://github.com/kayanmatta/FinTrack.git
 ```
 
 ---
@@ -339,6 +339,6 @@ Este projeto está licenciado sob a licença MIT.
 
 # Contato
 
-Desenvolvido por **ParceirosDev**.
+Desenvolvido por **Kayan da Matta** ([@kayanmatta](https://github.com/kayanmatta)).
 
-Caso tenha sugestões, encontre algum problema ou queira contribuir com o projeto, fique à vontade para abrir uma *Issue* ou enviar um *Pull Request*.
+Caso tenha sugestões ou encontre algum problema, fique à vontade para abrir uma *Issue* ou enviar um *Pull Request*.
