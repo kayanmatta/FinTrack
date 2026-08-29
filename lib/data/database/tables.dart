@@ -84,3 +84,15 @@ class Budgets extends Table {
   /// Limite alocado em centavos.
   IntColumn get limitAmount => integer().withDefault(const Constant(0))();
 }
+
+/// Renda mensal informada pelo usuário para o orçamento (S6-01).
+class BudgetIncomes extends Table {
+  /// Mês de referência no formato 'yyyy-MM'.
+  TextColumn get month => text().withLength(min: 7, max: 7)();
+
+  /// Renda total em centavos.
+  IntColumn get amount => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {month};
+}

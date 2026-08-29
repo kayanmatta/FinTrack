@@ -42,6 +42,14 @@ class AlertTemplates {
   /// "Sua economia do mês é de {X}% da receita."
   static String savingsRate(double percent) =>
       'Sua economia do mês é de ${formatPercentPt(percent)}% da receita.';
+
+  /// "Você atingiu {X}% do limite de {categoria}." (S6-03/S8-03)
+  static String budgetReached(String category, double percent) =>
+      'Você atingiu ${formatPercentPt(percent)}% do limite de $category.';
+
+  /// "Você ultrapassou o limite de {categoria} ({X}%)." (S6-03/S8-03)
+  static String budgetExceeded(String category, double percent) =>
+      'Você ultrapassou o limite de $category (${formatPercentPt(percent)}%).';
 }
 
 /// Saldo acumulado até o final do mês de [reference].
