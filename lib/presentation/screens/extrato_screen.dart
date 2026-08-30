@@ -34,6 +34,9 @@ class ExtratoScreen extends StatefulWidget {
 }
 
 class _ExtratoScreenState extends State<ExtratoScreen> {
+  /// Tamanho da página do extrato (S8-07: listas longas carregam por partes).
+  static const int _pageSize = 100;
+
   final _searchController = TextEditingController();
 
   String _query = '';
@@ -43,6 +46,7 @@ class _ExtratoScreenState extends State<ExtratoScreen> {
   _Period _period = _Period.all;
   bool _descending = true;
   bool _tableView = false;
+  int _limit = _pageSize;
 
   bool get _hasActiveFilters =>
       _typeFilter != 'todos' ||
@@ -56,13 +60,38 @@ class _ExtratoScreenState extends State<ExtratoScreen> {
     super.dispose();
   }
 
+  /// Aplica uma mudança de estado e volta a paginação para a primeira página.
+  void _update(VoidCallback mutate) {
+    setState(() {
+      mutate();
+      _limit = _pageSize;
+    });
+  }
+
   void _clearFilters() {
     setState(() {
       _typeFilter = 'todos';
       _categoryFilter = null;
       _accountFilter = null;
       _period = _Period.all;
+      _limit = _pageSize;
     });
+  }
+
+  void _showSavedSnackBar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Transação salva.')),
+    );
+  }
+
+  Future<void> _openTransaction(TransactionEntity transaction) async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => TransactionFormScreen(initial: transaction),
+      ),
+    );
+    if (!context.mounted || saved != true) return;
+    _showSavedSnackBar();
   }
 
   bool _matchesPeriod(DateTime date, DateTime now) {
@@ -168,23 +197,25 @@ class _ExtratoScreenState extends State<ExtratoScreen> {
                           )
                         : null,
                   ),
-                  onChanged: (value) => setState(() => _query = value.trim()),
+                  onChanged: (value) =>
+                      _update(() => _query = value.trim()),
                 ),
               ),
               _FilterBar(
                 typeFilter: _typeFilter,
                 onTypeChanged: (value) =>
-                    setState(() => _typeFilter = value),
+                    _update(() => _typeFilter = value),
                 categoryFilter: _categoryFilter,
                 accountFilter: _accountFilter,
                 period: _period,
                 categories: categories.valueOrNull ?? const [],
                 accounts: accounts.valueOrNull ?? const [],
                 onCategorySelected: (value) =>
-                    setState(() => _categoryFilter = value),
+                    _update(() => _categoryFilter = value),
                 onAccountSelected: (value) =>
-                    setState(() => _accountFilter = value),
-                onPeriodSelected: (value) => setState(() => _period = value),
+                    _update(() => _accountFilter = value),
+                onPeriodSelected: (value) =>
+                    _update(() => _period = value),
                 hasActiveFilters: _hasActiveFilters,
                 onClearFilters: _clearFilters,
               ),
@@ -214,17 +245,30 @@ class _ExtratoScreenState extends State<ExtratoScreen> {
                         child: Text('Nenhuma transação encontrada.'),
                       );
                     }
-                    if (_tableView) {
-                      return _TransactionTable(
-                        transactions: filtered,
-                        categoriesById: categoriesById,
-                        accountsById: accountsById,
-                      );
-                    }
-                    return _TransactionList(
-                      transactions: filtered,
-                      categoriesById: categoriesById,
-                      accountsById: accountsById,
+                    final hasMore = filtered.length > _limit;
+                    final visible = filtered.take(_limit).toList();
+                    void loadMore() => setState(() => _limit += _pageSize);
+                    return AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 200),
+                      child: _tableView
+                          ? _TransactionTable(
+                              key: const ValueKey('tabela'),
+                              transactions: visible,
+                              categoriesById: categoriesById,
+                              accountsById: accountsById,
+                              hasMore: hasMore,
+                              onLoadMore: loadMore,
+                              onOpen: _openTransaction,
+                            )
+                          : _TransactionList(
+                              key: const ValueKey('lista'),
+                              transactions: visible,
+                              categoriesById: categoriesById,
+                              accountsById: accountsById,
+                              hasMore: hasMore,
+                              onLoadMore: loadMore,
+                              onOpen: _openTransaction,
+                            ),
                     );
                   },
                 ),
@@ -369,14 +413,21 @@ class _FilterBar extends StatelessWidget {
 /// Visualização em lista agrupada por dia.
 class _TransactionList extends StatelessWidget {
   const _TransactionList({
+    super.key,
     required this.transactions,
     required this.categoriesById,
     required this.accountsById,
+    required this.hasMore,
+    required this.onLoadMore,
+    required this.onOpen,
   });
 
   final List<TransactionEntity> transactions;
   final Map<int, CategoryEntity> categoriesById;
   final Map<int, AccountEntity> accountsById;
+  final bool hasMore;
+  final VoidCallback onLoadMore;
+  final ValueChanged<TransactionEntity> onOpen;
 
   Map<DateTime, List<TransactionEntity>> _groupByDay() {
     final groups = <DateTime, List<TransactionEntity>>{};
@@ -412,9 +463,32 @@ class _TransactionList extends StatelessWidget {
               transaction: transaction,
               category: categoriesById[transaction.categoryId],
               account: accountsById[transaction.accountId],
+              onOpen: onOpen,
             ),
         ],
+        if (hasMore) _LoadMoreButton(onPressed: onLoadMore),
       ],
+    );
+  }
+}
+
+/// Botão "carregar mais" exibido ao fim de cada página (S8-07).
+class _LoadMoreButton extends StatelessWidget {
+  const _LoadMoreButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: TextButton.icon(
+          onPressed: onPressed,
+          icon: const Icon(Icons.expand_more),
+          label: const Text('Carregar mais transações'),
+        ),
+      ),
     );
   }
 }
@@ -425,11 +499,13 @@ class _TransactionTile extends StatelessWidget {
     required this.transaction,
     required this.category,
     required this.account,
+    required this.onOpen,
   });
 
   final TransactionEntity transaction;
   final CategoryEntity? category;
   final AccountEntity? account;
+  final ValueChanged<TransactionEntity> onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -440,13 +516,7 @@ class _TransactionTile extends StatelessWidget {
     final amountColor =
         transaction.isIncome ? AppColors.income : AppColors.expense;
     return ListTile(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => TransactionFormScreen(initial: transaction),
-          ),
-        );
-      },
+      onTap: () => onOpen(transaction),
       leading: CircleAvatar(
         backgroundColor: color.withValues(alpha: 0.2),
         child: Icon(
@@ -479,75 +549,88 @@ class _TransactionTile extends StatelessWidget {
 /// Visualização em tabela (Data, Descrição, Categoria, Conta, Valor).
 class _TransactionTable extends StatelessWidget {
   const _TransactionTable({
+    super.key,
     required this.transactions,
     required this.categoriesById,
     required this.accountsById,
+    required this.hasMore,
+    required this.onLoadMore,
+    required this.onOpen,
   });
 
   final List<TransactionEntity> transactions;
   final Map<int, CategoryEntity> categoriesById;
   final Map<int, AccountEntity> accountsById;
+  final bool hasMore;
+  final VoidCallback onLoadMore;
+  final ValueChanged<TransactionEntity> onOpen;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: SingleChildScrollView(
-        child: DataTable(
-          columns: const [
-            DataColumn(label: Text('Data')),
-            DataColumn(label: Text('Descrição')),
-            DataColumn(label: Text('Categoria')),
-            DataColumn(label: Text('Conta')),
-            DataColumn(label: Text('Valor'), numeric: true),
-          ],
-          rows: [
-            for (final transaction in transactions)
-              DataRow(
-                onSelectChanged: (_) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) =>
-                          TransactionFormScreen(initial: transaction),
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SingleChildScrollView(
+              child: DataTable(
+                columns: const [
+                  DataColumn(label: Text('Data')),
+                  DataColumn(label: Text('Descrição')),
+                  DataColumn(label: Text('Categoria')),
+                  DataColumn(label: Text('Conta')),
+                  DataColumn(label: Text('Valor'), numeric: true),
+                ],
+                rows: [
+                  for (final transaction in transactions)
+                    DataRow(
+                      onSelectChanged: (_) => onOpen(transaction),
+                      cells: [
+                        DataCell(
+                          Text(
+                            DateFormat(
+                              'dd/MM/yyyy',
+                            ).format(transaction.date),
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            transaction.description ?? '',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            categoriesById[transaction.categoryId]?.name ??
+                                'Sem categoria',
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            accountsById[transaction.accountId]?.name ?? '—',
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            '${transaction.isIncome ? '+' : '-'} '
+                            '${formatCents(transaction.amount)}',
+                            style: TextStyle(
+                              color: transaction.isIncome
+                                  ? AppColors.income
+                                  : AppColors.expense,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                },
-                cells: [
-                  DataCell(
-                    Text(DateFormat('dd/MM/yyyy').format(transaction.date)),
-                  ),
-                  DataCell(
-                    Text(
-                      transaction.description ?? '',
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  DataCell(
-                    Text(
-                      categoriesById[transaction.categoryId]?.name ??
-                          'Sem categoria',
-                    ),
-                  ),
-                  DataCell(
-                    Text(accountsById[transaction.accountId]?.name ?? '—'),
-                  ),
-                  DataCell(
-                    Text(
-                      '${transaction.isIncome ? '+' : '-'} '
-                      '${formatCents(transaction.amount)}',
-                      style: TextStyle(
-                        color: transaction.isIncome
-                            ? AppColors.income
-                            : AppColors.expense,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
                 ],
               ),
-          ],
+            ),
+          ),
         ),
-      ),
+        if (hasMore) _LoadMoreButton(onPressed: onLoadMore),
+      ],
     );
   }
 }

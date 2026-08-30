@@ -283,4 +283,134 @@ void main() {
     expect(find.text('Valor'), findsOneWidget);
     expect(find.text('Compra da semana'), findsOneWidget);
   });
+
+  testWidgets('Pagina o extrato em blocos de 100 com "Carregar mais"', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final base = DateTime(now.year, now.month, now.day);
+    final items = [
+      for (var i = 0; i < 150; i++)
+        TransactionEntity(
+          id: i + 1,
+          type: 'despesa',
+          amount: 100 + i,
+          categoryId: 1,
+          accountId: null,
+          date: base.subtract(Duration(days: i)),
+          description: 'Compra $i',
+          createdAt: base.subtract(Duration(days: i)),
+        ),
+    ];
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          categoryRepositoryProvider.overrideWithValue(
+            FakeCategoryRepository([
+              const CategoryEntity(
+                id: 1,
+                name: 'Mercado',
+                icon: 'shopping_cart',
+                color: '#EF4444',
+                type: 'despesa',
+                isDefault: true,
+              ),
+            ]),
+          ),
+          accountRepositoryProvider.overrideWithValue(
+            FakeAccountRepository([]),
+          ),
+          transactionRepositoryProvider.overrideWithValue(
+            FakeTransactionRepository(items),
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          home: const ExtratoScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    // Primeira página termina na 100ª transação (Compra 99, datas distintas
+    // em ordem decrescente); a 150ª ainda não existe na lista.
+    await tester.scrollUntilVisible(
+      find.text('Compra 99'),
+      600,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(find.text('Compra 149'), findsNothing);
+    await tester.scrollUntilVisible(
+      find.text('Carregar mais transações'),
+      600,
+      scrollable: find.byType(Scrollable).last,
+    );
+
+    // Carrega o restante e a última transação aparece.
+    await tester.tap(find.text('Carregar mais transações'));
+    await tester.pump();
+    await tester.scrollUntilVisible(
+      find.text('Compra 149'),
+      600,
+      scrollable: find.byType(Scrollable).last,
+    );
+    expect(find.text('Carregar mais transações'), findsNothing);
+  });
+
+  testWidgets('Confirma edição com snackbar "Transação salva."', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          categoryRepositoryProvider.overrideWithValue(
+            FakeCategoryRepository([
+              const CategoryEntity(
+                id: 1,
+                name: 'Mercado',
+                icon: 'shopping_cart',
+                color: '#EF4444',
+                type: 'despesa',
+                isDefault: true,
+              ),
+            ]),
+          ),
+          accountRepositoryProvider.overrideWithValue(
+            FakeAccountRepository([]),
+          ),
+          transactionRepositoryProvider.overrideWithValue(
+            FakeTransactionRepository([
+              TransactionEntity(
+                id: 1,
+                type: 'despesa',
+                amount: 4550,
+                categoryId: 1,
+                accountId: null,
+                date: today,
+                description: 'Compra da semana',
+                createdAt: today,
+              ),
+            ]),
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          home: const ExtratoScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    // Abre a transação para edição e salva.
+    await tester.tap(find.text('Compra da semana'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Salvar'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Transação salva.'), findsOneWidget);
+  });
 }

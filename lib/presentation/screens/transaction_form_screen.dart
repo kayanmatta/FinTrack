@@ -147,7 +147,8 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
     if (confirmed != true) return;
 
     await ref.read(transactionRepositoryProvider).delete(widget.initial!.id);
-    if (mounted) Navigator.of(context).pop(true);
+    // Pop sem sinal de "salvo" — o extrato/dashboard atualiza via stream.
+    if (mounted) Navigator.of(context).pop(false);
   }
 
   @override
