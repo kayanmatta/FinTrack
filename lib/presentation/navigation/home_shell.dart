@@ -51,9 +51,13 @@ class _HomeShellState extends State<HomeShell> {
 
   void _select(int index) => setState(() => _index = index);
 
-  void _newTransaction() {
-    Navigator.of(context).push(
+  Future<void> _newTransaction() async {
+    final saved = await Navigator.of(context).push<bool>(
       MaterialPageRoute(builder: (_) => const TransactionFormScreen()),
+    );
+    if (!mounted || saved != true) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Transação salva.')),
     );
   }
 
