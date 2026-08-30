@@ -27,6 +27,7 @@ class BackupRepositoryImpl implements BackupRepository {
     final contributions = await _db.select(_db.goalContributions).get();
     final budgets = await _db.select(_db.budgets).get();
     final incomes = await _db.select(_db.budgetIncomes).get();
+    final readAlerts = await _db.select(_db.readAlerts).get();
 
     final data = {
       'users': [
@@ -101,6 +102,10 @@ class BackupRepositoryImpl implements BackupRepository {
       'budgetIncomes': [
         for (final i in incomes) {'month': i.month, 'amount': i.amount},
       ],
+      'readAlerts': [
+        for (final r in readAlerts)
+          {'alertKey': r.alertKey, 'readAt': r.readAt.toIso8601String()},
+      ],
     };
 
     return const JsonEncoder.withIndent('  ').convert({
@@ -132,6 +137,7 @@ class BackupRepositoryImpl implements BackupRepository {
       await _db.delete(_db.goalContributions).go();
       await _db.delete(_db.budgets).go();
       await _db.delete(_db.budgetIncomes).go();
+      await _db.delete(_db.readAlerts).go();
       await _db.delete(_db.transactions).go();
       await _db.delete(_db.goals).go();
       await _db.delete(_db.categories).go();
@@ -219,6 +225,13 @@ class BackupRepositoryImpl implements BackupRepository {
             BudgetIncomesCompanion.insert(
               month: i['month'] as String,
               amount: Value(i['amount'] as int),
+            ),
+        ]);
+        batch.insertAll(_db.readAlerts, [
+          for (final r in rows('readAlerts'))
+            ReadAlertsCompanion.insert(
+              alertKey: r['alertKey'] as String,
+              readAt: Value(_dateTime(r['readAt'])),
             ),
         ]);
       });
