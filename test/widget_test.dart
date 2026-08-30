@@ -139,7 +139,8 @@ void main() {
 
     await _typePin(tester, ['1', '2', '3', '4']);
     await tester.pump();
-    expect(find.text('Dashboard'), findsOneWidget);
+    // Rótulo na barra lateral + título do cabeçalho do dashboard.
+    expect(find.text('Dashboard'), findsNWidgets(2));
   });
 
   testWidgets('Navega para a tela de metas após desbloquear', (tester) async {
@@ -162,9 +163,10 @@ void main() {
     await _typePin(tester, ['1', '2', '3', '4']);
     await tester.pump();
 
-    await tester.tap(find.text('Metas'));
+    // IndexedStack constrói apenas a tela exibida: 'Metas' aparece na
+    // barra lateral e, após o toque, também no AppBar da tela.
+    await tester.tap(find.text('Metas').first);
     await tester.pump();
-    // Rótulo na barra lateral + título da tela.
     expect(find.text('Metas'), findsNWidgets(2));
   });
 }

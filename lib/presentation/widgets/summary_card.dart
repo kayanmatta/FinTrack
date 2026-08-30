@@ -29,11 +29,10 @@ class SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        color: AppColors.cardDark,
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,23 +53,23 @@ class SummaryCard extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(7),
                 decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(8),
+                  color: accent,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, size: 14, color: accent),
+                child: Icon(icon, size: 14, color: Colors.white),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 10),
           Text(
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           _ChangeBadge(change: change, goodWhenPositive: goodWhenPositive),
         ],
       ),

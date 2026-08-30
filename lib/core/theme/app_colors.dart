@@ -42,4 +42,18 @@ class AppColors {
   static const Color border = Color(0xFF374151);
   /// Linha divisória entre seções
   static const Color divider = Color(0xFF2D2D4A);
+
+  // --- Paleta do redesign (mockup) ---
+  /// Fundo da barra lateral desktop e barra inferior mobile (quase preto)
+  static const Color sidebar = Color(0xFF0E0E17);
+  /// Fundo escuro das telas mobile
+  static const Color backgroundDark = Color(0xFF0B0B12);
+  /// Fundo claro da área de conteúdo no desktop
+  static const Color canvasLight = Color(0xFFEFF1F5);
+  /// Card escuro sobre fundo claro (dashboard desktop)
+  static const Color cardDark = Color(0xFF151527);
+  /// Texto escuro sobre fundo claro
+  static const Color textDark = Color(0xFF111827);
+  /// Texto secundário sobre fundo claro
+  static const Color textDarkSecondary = Color(0xFF6B7280);
 }

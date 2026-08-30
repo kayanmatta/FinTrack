@@ -234,10 +234,11 @@ void main() {
     expect(find.text('20%'), findsOneWidget);
 
     // Últimas transações: rola até a seção e verifica as 5 mais recentes.
+    // No layout desktop a rolagem é um SingleChildScrollView.
     final latestHeader = find.text('Últimas transações');
     await tester.dragUntilVisible(
       latestHeader,
-      find.byType(ListView).first,
+      find.byType(SingleChildScrollView).first,
       const Offset(0, -300),
     );
     expect(latestHeader, findsOneWidget);
