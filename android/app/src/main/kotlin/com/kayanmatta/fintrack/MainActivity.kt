@@ -1,4 +1,4 @@
-package com.parceirosdev.fintrack
+package com.kayanmatta.fintrack
 
 import io.flutter.embedding.android.FlutterActivity
 

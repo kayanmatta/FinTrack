@@ -5,8 +5,8 @@ plugins {
 }
 
 android {
-    namespace = "com.parceirosdev.fintrack"
-    compileSdk = flutter.compileSdkVersion
+    namespace = "com.kayanmatta.fintrack"
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -15,8 +15,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.parceirosdev.fintrack"
+        // Application ID pessoal, alinhado com o bundle ID do iOS.
+        applicationId = "com.kayanmatta.fintrack"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

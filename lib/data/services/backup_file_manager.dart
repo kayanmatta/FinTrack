@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 
@@ -21,26 +21,24 @@ abstract class BackupFileManager {
 class BackupFileManagerImpl implements BackupFileManager {
   @override
   Future<String?> saveBackup(String suggestedName, String content) async {
-    final path = await FilePicker.platform.saveFile(
+    // No file_picker 12+, o próprio plugin grava os bytes no destino escolhido.
+    final uri = await FilePicker.saveFile(
       dialogTitle: 'Salvar backup do FinTrack',
       fileName: suggestedName,
-      type: FileType.custom,
-      allowedExtensions: const ['json'],
+      bytes: utf8.encode(content),
+      mimeType: 'application/json',
     );
-    if (path == null) return null;
-    await File(path).writeAsString(content);
-    return path;
+    return uri?.toString();
   }
 
   @override
   Future<String?> readBackup() async {
-    final result = await FilePicker.platform.pickFiles(
+    final file = await FilePicker.pickFile(
       dialogTitle: 'Selecionar backup do FinTrack',
       type: FileType.custom,
       allowedExtensions: const ['json'],
     );
-    final path = result?.files.single.path;
-    if (path == null) return null;
-    return File(path).readAsString();
+    if (file == null) return null;
+    return utf8.decode(await file.readAsBytes());
   }
 }
