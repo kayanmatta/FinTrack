@@ -6,6 +6,8 @@ import '../screens/dashboard_screen.dart';
 import '../screens/extrato_screen.dart';
 import '../screens/metas_screen.dart';
 import '../screens/orcamento_screen.dart';
+import '../screens/transaction_form_screen.dart';
+import '../widgets/notifications_bell.dart';
 
 /// Destino da navegação principal.
 class _Destination {
@@ -49,12 +51,31 @@ class _HomeShellState extends State<HomeShell> {
 
   void _select(int index) => setState(() => _index = index);
 
+  Future<void> _newTransaction() async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const TransactionFormScreen()),
+    );
+    if (!mounted || saved != true) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Transação salva.')),
+    );
+  }
+
+  FloatingActionButton get _newTransactionFab {
+    return FloatingActionButton.extended(
+      onPressed: _newTransaction,
+      icon: const Icon(Icons.add),
+      label: const Text('Nova transação'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth >= 700) {
           return Scaffold(
+            floatingActionButton: _newTransactionFab,
             body: Row(
               children: [
                 NavigationRail(
@@ -68,6 +89,10 @@ class _HomeShellState extends State<HomeShell> {
                         label: Text(d.label),
                       ),
                   ],
+                  trailing: const Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: NotificationsBell(),
+                  ),
                 ),
                 const VerticalDivider(width: 1),
                 Expanded(
@@ -78,6 +103,7 @@ class _HomeShellState extends State<HomeShell> {
           );
         }
         return Scaffold(
+          floatingActionButton: _newTransactionFab,
           body: IndexedStack(index: _index, children: _screens),
           bottomNavigationBar: NavigationBar(
             selectedIndex: _index,

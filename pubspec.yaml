@@ -23,11 +23,19 @@ dependencies:
   # Auth
   local_auth: ^2.3.0
 
+  # Security
+  crypto: ^3.0.5
+  shared_preferences: ^2.3.4
+
 
   # Utils
   intl: ^0.20.2
   path_provider: ^2.1.5
   path: ^1.9.0
+  fl_chart: ^1.2.0
+
+  # Backup (salvar/abrir arquivos em todas as plataformas)
+  file_picker: ^8.1.2
 
 dev_dependencies:
   flutter_test:

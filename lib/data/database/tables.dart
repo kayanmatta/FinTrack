@@ -84,3 +84,25 @@ class Budgets extends Table {
   /// Limite alocado em centavos.
   IntColumn get limitAmount => integer().withDefault(const Constant(0))();
 }
+
+/// Renda mensal informada pelo usuário para o orçamento (S6-01).
+class BudgetIncomes extends Table {
+  /// Mês de referência no formato 'yyyy-MM'.
+  TextColumn get month => text().withLength(min: 7, max: 7)();
+
+  /// Renda total em centavos.
+  IntColumn get amount => integer().withDefault(const Constant(0))();
+
+  @override
+  Set<Column> get primaryKey => {month};
+}
+
+/// Chaves dos alertas já marcados como lidos (S8-01).
+class ReadAlerts extends Table {
+  /// Chave estável do alerta (ex.: 'orcamento-3-2026-08').
+  TextColumn get alertKey => text()();
+  DateTimeColumn get readAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {alertKey};
+}
