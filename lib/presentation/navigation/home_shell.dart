@@ -7,6 +7,7 @@ import '../screens/extrato_screen.dart';
 import '../screens/metas_screen.dart';
 import '../screens/orcamento_screen.dart';
 import '../screens/transaction_form_screen.dart';
+import '../widgets/notifications_bell.dart';
 
 /// Destino da navegação principal.
 class _Destination {
@@ -84,6 +85,10 @@ class _HomeShellState extends State<HomeShell> {
                         label: Text(d.label),
                       ),
                   ],
+                  trailing: const Padding(
+                    padding: EdgeInsets.only(bottom: 16),
+                    child: NotificationsBell(),
+                  ),
                 ),
                 const VerticalDivider(width: 1),
                 Expanded(

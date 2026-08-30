@@ -96,3 +96,13 @@ class BudgetIncomes extends Table {
   @override
   Set<Column> get primaryKey => {month};
 }
+
+/// Chaves dos alertas já marcados como lidos (S8-01).
+class ReadAlerts extends Table {
+  /// Chave estável do alerta (ex.: 'orcamento-3-2026-08').
+  TextColumn get alertKey => text()();
+  DateTimeColumn get readAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {alertKey};
+}
