@@ -1,5 +1,6 @@
 package com.kayanmatta.fintrack
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity()
+// O local_auth exige FragmentActivity para exibir o diálogo de biometria.
+class MainActivity : FlutterFragmentActivity()
