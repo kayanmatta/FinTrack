@@ -15,8 +15,25 @@ import '../providers/category_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../widgets/category_donut_chart.dart';
 import '../widgets/expense_line_chart.dart';
+import '../widgets/notifications_bell.dart';
 import '../widgets/summary_card.dart';
 import 'transaction_form_screen.dart';
+
+/// Sino de notificações visível apenas em telas estreitas (mobile);
+/// no desktop ele fica na barra lateral (HomeShell).
+class _MobileBell extends StatelessWidget {
+  const _MobileBell();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= 700) return const SizedBox.shrink();
+        return const NotificationsBell();
+      },
+    );
+  }
+}
 
 /// Nomes dos meses em português (sem dependência de locale do intl).
 const _monthNames = [
@@ -45,7 +62,10 @@ class DashboardScreen extends ConsumerWidget {
     final accounts = ref.watch(accountsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard')),
+      appBar: AppBar(
+        title: const Text('Dashboard'),
+        actions: const [_MobileBell()],
+      ),
       body: transactions.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => Center(child: Text('Erro ao carregar: $error')),
