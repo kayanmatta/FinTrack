@@ -57,6 +57,12 @@ Future<void> _seed(AppDatabase db) async {
     income: 400000,
     allocations: {categoryId: 150000},
   );
+  await db.into(db.readAlerts).insert(
+        ReadAlertsCompanion.insert(
+          alertKey: 'orcamento-1-2026-08',
+          readAt: Value(DateTime(2026, 8, 26)),
+        ),
+      );
 }
 
 void main() {
@@ -79,6 +85,7 @@ void main() {
     expect((data['goalContributions'] as List), hasLength(1));
     expect((data['budgets'] as List), hasLength(1));
     expect((data['budgetIncomes'] as List), hasLength(1));
+    expect((data['readAlerts'] as List), hasLength(1));
   });
 
   test('Restaura o backup em outro banco preservando IDs e relações',
@@ -116,6 +123,8 @@ void main() {
     final income = (await target.select(target.budgetIncomes).get()).single;
     expect(income.month, '2026-08');
     expect(income.amount, 400000);
+    final readAlert = (await target.select(target.readAlerts).get()).single;
+    expect(readAlert.alertKey, 'orcamento-1-2026-08');
   });
 
   test('Restaurar substitui os dados existentes do banco de destino',
