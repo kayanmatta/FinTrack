@@ -35,7 +35,7 @@ dependencies:
   fl_chart: ^1.2.0
 
   # Backup (salvar/abrir arquivos em todas as plataformas)
-  file_picker: ^8.1.2
+  file_picker: ^12.1.2
 
 dev_dependencies:
   flutter_test:
