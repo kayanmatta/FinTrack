@@ -28,6 +28,8 @@ class BackupRepositoryImpl implements BackupRepository {
     final budgets = await _db.select(_db.budgets).get();
     final incomes = await _db.select(_db.budgetIncomes).get();
     final readAlerts = await _db.select(_db.readAlerts).get();
+    final fixedExpenses = await _db.select(_db.fixedExpenses).get();
+    final fixedPayments = await _db.select(_db.fixedExpensePayments).get();
 
     final data = {
       'users': [
@@ -106,10 +108,33 @@ class BackupRepositoryImpl implements BackupRepository {
         for (final r in readAlerts)
           {'alertKey': r.alertKey, 'readAt': r.readAt.toIso8601String()},
       ],
+      'fixedExpenses': [
+        for (final f in fixedExpenses)
+          {
+            'id': f.id,
+            'type': f.type,
+            'description': f.description,
+            'amount': f.amount,
+            'categoryId': f.categoryId,
+            'accountId': f.accountId,
+            'day': f.day,
+            'createdAt': f.createdAt.toIso8601String(),
+          },
+      ],
+      'fixedExpensePayments': [
+        for (final p in fixedPayments)
+          {
+            'id': p.id,
+            'fixedId': p.fixedId,
+            'month': p.month,
+            'transactionId': p.transactionId,
+            'paidAt': p.paidAt.toIso8601String(),
+          },
+      ],
     };
 
     return const JsonEncoder.withIndent('  ').convert({
-      'app': 'FinTrack',
+      'app': 'Centivo',
       'format': backupFormatVersion,
       'exportedAt': DateTime.now().toIso8601String(),
       'data': data,
@@ -119,8 +144,9 @@ class BackupRepositoryImpl implements BackupRepository {
   @override
   Future<void> importBackup(String content) async {
     final dynamic decoded = jsonDecode(content);
-    if (decoded is! Map<String, dynamic> || decoded['app'] != 'FinTrack') {
-      throw const FormatException('O arquivo não é um backup do FinTrack.');
+    if (decoded is! Map<String, dynamic> ||
+        (decoded['app'] != 'FinTrack' && decoded['app'] != 'Centivo')) {
+      throw const FormatException('O arquivo não é um backup do Centivo.');
     }
     final dynamic raw = decoded['data'];
     if (raw is! Map<String, dynamic>) {
@@ -134,6 +160,8 @@ class BackupRepositoryImpl implements BackupRepository {
 
     await _db.transaction(() async {
       // Exclui na ordem das FKs (filhos antes dos pais).
+      await _db.delete(_db.fixedExpensePayments).go();
+      await _db.delete(_db.fixedExpenses).go();
       await _db.delete(_db.goalContributions).go();
       await _db.delete(_db.budgets).go();
       await _db.delete(_db.budgetIncomes).go();
@@ -232,6 +260,29 @@ class BackupRepositoryImpl implements BackupRepository {
             ReadAlertsCompanion.insert(
               alertKey: r['alertKey'] as String,
               readAt: Value(_dateTime(r['readAt'])),
+            ),
+        ]);
+        batch.insertAll(_db.fixedExpenses, [
+          for (final f in rows('fixedExpenses'))
+            FixedExpensesCompanion.insert(
+              id: Value(f['id'] as int),
+              type: Value(f['type'] as String? ?? 'despesa'),
+              description: Value(f['description'] as String?),
+              amount: Value(f['amount'] as int),
+              categoryId: Value(f['categoryId'] as int?),
+              accountId: Value(f['accountId'] as int?),
+              day: Value(f['day'] as int),
+              createdAt: Value(_dateTime(f['createdAt'])),
+            ),
+        ]);
+        batch.insertAll(_db.fixedExpensePayments, [
+          for (final p in rows('fixedExpensePayments'))
+            FixedExpensePaymentsCompanion.insert(
+              id: Value(p['id'] as int),
+              fixedId: p['fixedId'] as int,
+              month: p['month'] as String,
+              transactionId: Value(p['transactionId'] as int?),
+              paidAt: Value(_dateTime(p['paidAt'])),
             ),
         ]);
       });

@@ -5,12 +5,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fintrack/core/theme/app_theme.dart';
 import 'package:fintrack/domain/entities/account_entity.dart';
 import 'package:fintrack/domain/entities/category_entity.dart';
+import 'package:fintrack/domain/entities/fixed_expense_entity.dart';
 import 'package:fintrack/domain/entities/transaction_entity.dart';
 import 'package:fintrack/domain/repositories/account_repository.dart';
 import 'package:fintrack/domain/repositories/category_repository.dart';
+import 'package:fintrack/domain/repositories/fixed_expense_repository.dart';
 import 'package:fintrack/domain/repositories/transaction_repository.dart';
 import 'package:fintrack/presentation/providers/account_provider.dart';
 import 'package:fintrack/presentation/providers/category_provider.dart';
+import 'package:fintrack/presentation/providers/fixed_expense_provider.dart';
 import 'package:fintrack/presentation/providers/transaction_provider.dart';
 import 'package:fintrack/presentation/screens/dashboard_screen.dart';
 
@@ -100,6 +103,50 @@ class FakeAccountRepository implements AccountRepository {
   Future<void> delete(int id) async {}
 }
 
+/// Repositório fake de lançamentos fixos (listas fixas).
+class FakeFixedExpenseRepository implements FixedExpenseRepository {
+  FakeFixedExpenseRepository({
+    this.expenses = const [],
+    this.payments = const [],
+  });
+
+  final List<FixedExpenseEntity> expenses;
+  final List<FixedExpensePaymentEntity> payments;
+
+  @override
+  Stream<List<FixedExpenseEntity>> watchAll() async* {
+    yield List.of(expenses);
+  }
+
+  @override
+  Stream<List<FixedExpensePaymentEntity>> watchPayments() async* {
+    yield List.of(payments);
+  }
+
+  @override
+  Future<int> create({
+    required String type,
+    required int amount,
+    required int day,
+    int? categoryId,
+    int? accountId,
+    String? description,
+  }) async =>
+      0;
+
+  @override
+  Future<void> update(FixedExpenseEntity expense) async {}
+
+  @override
+  Future<void> delete(int id) async {}
+
+  @override
+  Future<void> pay(int fixedId, {required String month}) async {}
+
+  @override
+  Future<void> unpay(int paymentId) async {}
+}
+
 void main() {
   testWidgets('Exibe os 4 cards de resumo com variação vs mês anterior', (
     tester,
@@ -134,6 +181,9 @@ void main() {
           ),
           accountRepositoryProvider.overrideWithValue(
             FakeAccountRepository([]),
+          ),
+          fixedExpenseRepositoryProvider.overrideWithValue(
+            FakeFixedExpenseRepository(),
           ),
           transactionRepositoryProvider.overrideWithValue(
             FakeTransactionRepository([
@@ -210,7 +260,8 @@ void main() {
     expect(find.text('R\$ 3.500,00'), findsOneWidget);
     expect(find.text('R\$ 4.000,00'), findsOneWidget);
     expect(find.text('R\$ 1.500,00'), findsNWidgets(2));
-    expect(find.text('R\$ 2.500,00'), findsOneWidget);
+    // Economia e "Livre no mês" do card de fixos (sem pendências).
+    expect(find.text('R\$ 2.500,00'), findsNWidgets(2));
 
     // Variações percentuais vs mês anterior.
     expect(find.text('250,0% vs mês anterior'), findsOneWidget);
@@ -247,5 +298,76 @@ void main() {
     expect(find.text('Aplicativo de corrida'), findsOneWidget);
     expect(find.text('Freelance'), findsOneWidget);
     expect(find.text('Aluguel'), findsOneWidget);
+  });
+
+  testWidgets('Mostra o card de fixos com pendências e o livre no mês', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final thisMonth = DateTime(now.year, now.month, 5);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          categoryRepositoryProvider.overrideWithValue(
+            FakeCategoryRepository([]),
+          ),
+          accountRepositoryProvider.overrideWithValue(
+            FakeAccountRepository([]),
+          ),
+          fixedExpenseRepositoryProvider.overrideWithValue(
+            FakeFixedExpenseRepository(
+              expenses: [
+                FixedExpenseEntity(
+                  id: 1,
+                  type: 'despesa',
+                  amount: 50000,
+                  day: 10,
+                  createdAt: thisMonth,
+                  description: 'Aluguel',
+                ),
+                FixedExpenseEntity(
+                  id: 2,
+                  type: 'receita',
+                  amount: 150000,
+                  day: 5,
+                  createdAt: thisMonth,
+                  description: 'Salário fixo',
+                ),
+              ],
+            ),
+          ),
+          transactionRepositoryProvider.overrideWithValue(
+            FakeTransactionRepository([
+              TransactionEntity(
+                id: 1,
+                type: 'receita',
+                amount: 150000,
+                categoryId: null,
+                accountId: null,
+                date: thisMonth,
+                description: 'Salário',
+                createdAt: thisMonth,
+              ),
+            ]),
+          ),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.dark,
+          home: const DashboardScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Cabeçalho do card, chips dos fixos pendentes e livre no mês:
+    // 1.500 de receita real − 0 de despesas − 500 de aluguel pendente
+    // + 1.500 de salário fixo ainda pendente.
+    expect(find.textContaining('Fixos de'), findsOneWidget);
+    expect(find.text('Aluguel'), findsOneWidget);
+    expect(find.text('Salário fixo'), findsOneWidget);
+    expect(find.text('Pendente'), findsOneWidget);
+    expect(find.text('R\$ 2.500,00'), findsOneWidget);
   });
 }

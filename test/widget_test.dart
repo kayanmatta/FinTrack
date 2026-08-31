@@ -5,13 +5,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:fintrack/domain/entities/account_entity.dart';
 import 'package:fintrack/domain/entities/category_entity.dart';
+import 'package:fintrack/domain/entities/fixed_expense_entity.dart';
 import 'package:fintrack/domain/entities/transaction_entity.dart';
 import 'package:fintrack/domain/repositories/account_repository.dart';
 import 'package:fintrack/domain/repositories/category_repository.dart';
+import 'package:fintrack/domain/repositories/fixed_expense_repository.dart';
 import 'package:fintrack/domain/repositories/transaction_repository.dart';
 import 'package:fintrack/main.dart';
 import 'package:fintrack/presentation/providers/account_provider.dart';
 import 'package:fintrack/presentation/providers/category_provider.dart';
+import 'package:fintrack/presentation/providers/fixed_expense_provider.dart';
 import 'package:fintrack/presentation/providers/startup_provider.dart';
 import 'package:fintrack/presentation/providers/transaction_provider.dart';
 
@@ -81,6 +84,37 @@ class _NoopAccountRepository implements AccountRepository {
   Future<void> delete(int id) async {}
 }
 
+class _NoopFixedExpenseRepository implements FixedExpenseRepository {
+  @override
+  Stream<List<FixedExpenseEntity>> watchAll() => Stream.value([]);
+
+  @override
+  Stream<List<FixedExpensePaymentEntity>> watchPayments() => Stream.value([]);
+
+  @override
+  Future<int> create({
+    required String type,
+    required int amount,
+    required int day,
+    int? categoryId,
+    int? accountId,
+    String? description,
+  }) async =>
+      0;
+
+  @override
+  Future<void> update(FixedExpenseEntity expense) async {}
+
+  @override
+  Future<void> delete(int id) async {}
+
+  @override
+  Future<void> pay(int fixedId, {required String month}) async {}
+
+  @override
+  Future<void> unpay(int paymentId) async {}
+}
+
 /// Simula um dispositivo sem biometria para o plugin local_auth.
 void _mockLocalAuthChannel() {
   TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
@@ -127,6 +161,9 @@ void main() {
               .overrideWithValue(_NoopTransactionRepository()),
           categoryRepositoryProvider.overrideWithValue(_NoopCategoryRepository()),
           accountRepositoryProvider.overrideWithValue(_NoopAccountRepository()),
+          fixedExpenseRepositoryProvider.overrideWithValue(
+            _NoopFixedExpenseRepository(),
+          ),
         ],
         child: const FinTrackApp(),
       ),
@@ -154,6 +191,9 @@ void main() {
               .overrideWithValue(_NoopTransactionRepository()),
           categoryRepositoryProvider.overrideWithValue(_NoopCategoryRepository()),
           accountRepositoryProvider.overrideWithValue(_NoopAccountRepository()),
+          fixedExpenseRepositoryProvider.overrideWithValue(
+            _NoopFixedExpenseRepository(),
+          ),
         ],
         child: const FinTrackApp(),
       ),

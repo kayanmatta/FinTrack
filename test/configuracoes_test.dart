@@ -10,7 +10,7 @@ import 'package:fintrack/presentation/screens/configuracoes_screen.dart';
 
 /// Repositório fake de backup que registra o conteúdo importado.
 class FakeBackupRepository implements BackupRepository {
-  String exportContent = '{"app":"FinTrack","format":1,"data":{}}';
+  String exportContent = '{"app":"Centivo","format":1,"data":{}}';
   String? imported;
 
   @override
@@ -29,7 +29,7 @@ class FakeBackupRepository implements BackupRepository {
 class FakeBackupFileManager implements BackupFileManager {
   String? savedContent;
   String? savedName;
-  String? readContent = '{"app":"FinTrack","format":1,"data":{}}';
+  String? readContent = '{"app":"Centivo","format":1,"data":{}}';
 
   @override
   Future<String?> saveBackup(String suggestedName, String content) async {
@@ -77,7 +77,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(fileManager.savedContent, repository.exportContent);
-    expect(fileManager.savedName, startsWith('fintrack-backup-'));
+    expect(fileManager.savedName, startsWith('centivo-backup-'));
     expect(fileManager.savedName, endsWith('.json'));
     expect(
       find.textContaining('Backup salvo em C:/Backups/'),
@@ -146,7 +146,7 @@ void main() {
 
     expect(repository.imported, isNull);
     expect(
-      find.text('Arquivo inválido: não é um backup do FinTrack.'),
+      find.text('Arquivo inválido: não é um backup do Centivo.'),
       findsOneWidget,
     );
   });

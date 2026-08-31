@@ -27,7 +27,7 @@ class _ConfiguracoesScreenState extends ConsumerState<ConfiguracoesScreen> {
     try {
       final content = await ref.read(backupRepositoryProvider).exportBackup();
       final now = DateTime.now();
-      final suggested = 'fintrack-backup-'
+      final suggested = 'centivo-backup-'
           '${now.year.toString().padLeft(4, '0')}-'
           '${now.month.toString().padLeft(2, '0')}-'
           '${now.day.toString().padLeft(2, '0')}.json';
@@ -80,7 +80,7 @@ class _ConfiguracoesScreenState extends ConsumerState<ConfiguracoesScreen> {
       _showSnack('Backup restaurado com sucesso.');
     } on FormatException {
       if (!mounted) return;
-      _showSnack('Arquivo inválido: não é um backup do FinTrack.');
+      _showSnack('Arquivo inválido: não é um backup do Centivo.');
     } catch (_) {
       if (!mounted) return;
       _showSnack('Erro ao restaurar o backup.');
@@ -93,6 +93,13 @@ class _ConfiguracoesScreenState extends ConsumerState<ConfiguracoesScreen> {
   Widget build(BuildContext context) {
     return ListView(
       children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Image.asset('assets/logo.png', height: 40),
+          ),
+        ),
         ListTile(
           leading: const Icon(Icons.label_outline),
           title: const Text('Categorias'),

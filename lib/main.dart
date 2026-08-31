@@ -14,7 +14,7 @@ class FinTrackApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FinTrack',
+      title: 'Centivo',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
       home: const AuthGate(),

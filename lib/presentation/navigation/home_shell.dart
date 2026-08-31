@@ -5,6 +5,7 @@ import '../screens/analises_screen.dart';
 import '../screens/configuracoes_screen.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/extrato_screen.dart';
+import '../screens/fixos_screen.dart';
 import '../screens/metas_screen.dart';
 import '../screens/orcamento_screen.dart';
 import '../screens/transaction_form_screen.dart';
@@ -25,10 +26,11 @@ const List<_Destination> _destinations = [
   _Destination('Análises', Icons.bar_chart_outlined),
   _Destination('Orçamento', Icons.account_balance_wallet_outlined),
   _Destination('Metas', Icons.flag_outlined),
+  _Destination('Fixos', Icons.event_repeat_outlined),
   _Destination('Ajustes', Icons.settings_outlined),
 ];
 
-/// Estrutura principal com as seis telas do aplicativo.
+/// Estrutura principal com as sete telas do aplicativo.
 ///
 /// Desktop (>=700px): barra lateral escura com logo e item ativo roxo.
 /// Mobile: barra inferior escura com botão "+" central (mockup).
@@ -46,6 +48,7 @@ class _HomeShellState extends State<HomeShell> {
     AnalisesScreen(),
     OrcamentoScreen(),
     MetasScreen(),
+    FixosScreen(),
     ConfiguracoesScreen(),
   ];
 
@@ -77,7 +80,7 @@ class _HomeShellState extends State<HomeShell> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                for (final i in [3, 4, 5])
+                for (final i in [3, 4, 5, 6])
                   ListTile(
                     leading: Icon(
                       _destinations[i].icon,
@@ -152,34 +155,13 @@ class _Sidebar extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.account_balance_wallet,
-                    color: Colors.white,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                const Expanded(
-                  child: Text(
-                    'FinTrack',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ],
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Image.asset(
+                'assets/logo.png',
+                height: 36,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
           const SizedBox(height: 24),
@@ -234,7 +216,7 @@ class _Sidebar extends StatelessWidget {
 
 /// Barra inferior mobile: 4 abas + botão "+" central (mockup).
 ///
-/// Orçamento, Metas e Ajustes ficam no sheet "Mais".
+/// Orçamento, Metas, Fixos e Ajustes ficam no sheet "Mais".
 class _MobileBar extends StatelessWidget {
   const _MobileBar({
     required this.index,

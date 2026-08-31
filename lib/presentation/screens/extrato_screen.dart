@@ -525,10 +525,16 @@ class _TransactionTile extends StatelessWidget {
           color: color,
         ),
       ),
-      title: Text(
-        transaction.description ?? category?.name ?? 'Sem categoria',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+      title: Row(
+        children: [
+          Flexible(
+            child: Text(
+              transaction.description ?? category?.name ?? 'Sem categoria',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
       subtitle: Text(
         account == null
@@ -594,9 +600,16 @@ class _TransactionTable extends StatelessWidget {
                           ),
                         ),
                         DataCell(
-                          Text(
-                            transaction.description ?? '',
-                            overflow: TextOverflow.ellipsis,
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  transaction.description ?? '',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         DataCell(
