@@ -51,7 +51,9 @@ class BudgetRepositoryImpl implements BudgetRepository {
           .insert(
             BudgetIncomesCompanion.insert(month: month, amount: Value(income)),
           );
-      _db.batch((batch) {
+      // O batch precisa ser aguardado: sem o await, os inserts dos
+      // limites eram perdidos ao fechar a transação (bug real do S6).
+      await _db.batch((batch) {
         batch.insertAll(
           _db.budgets,
           [

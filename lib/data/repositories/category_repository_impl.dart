@@ -92,7 +92,7 @@ class CategoryRepositoryImpl implements CategoryRepository {
 
     final existing = await _db.select(_db.categories).get();
     if (existing.isEmpty) {
-      _db.batch((batch) {
+      await _db.batch((batch) {
         batch.insertAll(
           _db.categories,
           [
