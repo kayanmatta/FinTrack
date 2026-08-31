@@ -74,7 +74,7 @@ void main() {
     final json = await BackupRepositoryImpl(db).exportBackup();
     final decoded = jsonDecode(json) as Map<String, dynamic>;
 
-    expect(decoded['app'], 'FinTrack');
+    expect(decoded['app'], 'Centivo');
     expect(decoded['format'], backupFormatVersion);
     final data = decoded['data'] as Map<String, dynamic>;
     expect((data['users'] as List), hasLength(1));
@@ -150,7 +150,7 @@ void main() {
     expect(categories.single.name, 'Mercado');
   });
 
-  test('Rejeita arquivos que não são backup do FinTrack', () async {
+  test('Rejeita arquivos que não são backup do Centivo', () async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = BackupRepositoryImpl(db);
@@ -160,7 +160,7 @@ void main() {
       throwsFormatException,
     );
     await expectLater(
-      repository.importBackup('{"app":"FinTrack"}'),
+      repository.importBackup('{"app":"Centivo"}'),
       throwsFormatException,
     );
   });

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
-/// Estilos de texto padrão do FinTrack.
+/// Estilos de texto padrão do Centivo.
 /// Usar em vez de TextStyle direto em cada tela.
 class AppTypography {
   AppTypography._();

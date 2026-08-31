@@ -1,4 +1,4 @@
-/// Espaçamentos padrão do FinTrack.
+/// Espaçamentos padrão do Centivo.
 /// Usar em paddings, margins e gaps em vez de valores aleatórios.
 class AppSpacing {
   AppSpacing._();

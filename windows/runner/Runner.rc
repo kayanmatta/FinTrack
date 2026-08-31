@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.parceirosdev" "\0"
-            VALUE "FileDescription", "fintrack" "\0"
+            VALUE "FileDescription", "Centivo" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "fintrack" "\0"
+            VALUE "InternalName", "Centivo" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.parceirosdev. All rights reserved." "\0"
             VALUE "OriginalFilename", "fintrack.exe" "\0"
-            VALUE "ProductName", "fintrack" "\0"
+            VALUE "ProductName", "Centivo" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

@@ -110,7 +110,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _onBiometric() async {
     final ok = await ref.read(authServiceProvider).authenticate(
-          reason: 'Desbloqueie o FinTrack para continuar.',
+          reason: 'Desbloqueie o Centivo para continuar.',
         );
     if (ok) {
       _unlock();
@@ -139,17 +139,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Icon(
-                      Icons.lock_outline,
-                      size: 40,
-                      color: AppColors.textPrimary,
-                    ),
+                  Image.asset(
+                    'assets/logo.png',
+                    height: 56,
+                    fit: BoxFit.contain,
                   ),
                   const SizedBox(height: 24),
                   Text(_title, style: theme.textTheme.titleLarge),

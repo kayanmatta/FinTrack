@@ -14,6 +14,7 @@ import 'package:fintrack/presentation/providers/account_provider.dart';
 import 'package:fintrack/presentation/providers/category_provider.dart';
 import 'package:fintrack/presentation/providers/transaction_provider.dart';
 import 'package:fintrack/presentation/screens/extrato_screen.dart';
+import 'package:fintrack/presentation/screens/transaction_form_screen.dart';
 
 /// Repositório fake de transações (lista fixa).
 class FakeTransactionRepository implements TransactionRepository {
@@ -407,6 +408,20 @@ void main() {
 
     // Abre a transação para edição e salva.
     await tester.tap(find.text('Compra da semana'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Salvar'),
+      200,
+      scrollable: find
+          .descendant(
+            of: find.descendant(
+              of: find.byType(TransactionFormScreen),
+              matching: find.byType(ListView),
+            ),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Salvar'));
     await tester.pumpAndSettle();

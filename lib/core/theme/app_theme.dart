@@ -3,7 +3,7 @@ import 'app_colors.dart';
 import 'app_typography.dart';
 import 'app_spacing.dart';
 
-/// Tema principal do FinTrack.
+/// Tema principal do Centivo.
 /// Aplica este tema no MaterialApp para configurar o app inteiro de uma vez.
 class AppTheme {
   AppTheme._();

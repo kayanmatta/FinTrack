@@ -106,3 +106,37 @@ class ReadAlerts extends Table {
   @override
   Set<Column> get primaryKey => {alertKey};
 }
+
+/// Lançamentos fixos cadastrados pelo usuário (S9): ficam pendentes a cada
+/// mês e só contam no saldo quando o pagamento é confirmado.
+class FixedExpenses extends Table {
+  IntColumn get id => integer().autoIncrement()();
+
+  /// 'despesa' | 'receita'
+  TextColumn get type => text().withDefault(const Constant('despesa'))();
+  TextColumn get description => text().nullable()();
+
+  /// Valor em centavos.
+  IntColumn get amount => integer().withDefault(const Constant(0))();
+  IntColumn get categoryId =>
+      integer().references(Categories, #id).nullable()();
+  IntColumn get accountId => integer().references(Accounts, #id).nullable()();
+
+  /// Dia de vencimento (1-31; meses menores usam o último dia).
+  IntColumn get day => integer().withDefault(const Constant(5))();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+/// Pagamentos confirmados de um lançamento fixo, um por mês (S9).
+class FixedExpensePayments extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get fixedId => integer().references(FixedExpenses, #id)();
+
+  /// Mês de referência no formato 'yyyy-MM'.
+  TextColumn get month => text().withLength(min: 7, max: 7)();
+
+  /// Transação real criada ao confirmar o pagamento.
+  IntColumn get transactionId =>
+      integer().references(Transactions, #id).nullable()();
+  DateTimeColumn get paidAt => dateTime().withDefault(currentDateAndTime)();
+}

@@ -177,6 +177,11 @@ void main() {
       '45,50',
     );
     await tester.tap(find.text('Mercado'));
+    await tester.scrollUntilVisible(
+      find.text('Salvar'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.tap(find.text('Salvar'));
     await tester.pumpAndSettle();
 
@@ -256,6 +261,12 @@ void main() {
       find.widgetWithText(TextFormField, 'Valor'),
       '25,00',
     );
+    await tester.scrollUntilVisible(
+      find.text('Salvar'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Salvar'));
     await tester.pumpAndSettle();
     expect(transactions.updated, hasLength(1));

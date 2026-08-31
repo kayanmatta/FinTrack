@@ -13,10 +13,12 @@ import '../../core/utils/financial_analytics.dart';
 import '../../core/utils/goal_metrics.dart';
 import '../../domain/entities/account_entity.dart';
 import '../../domain/entities/category_entity.dart';
+import '../../domain/entities/fixed_expense_entity.dart';
 import '../../domain/entities/goal_entity.dart';
 import '../../domain/entities/transaction_entity.dart';
 import '../providers/account_provider.dart';
 import '../providers/category_provider.dart';
+import '../providers/fixed_expense_provider.dart';
 import '../providers/goal_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../widgets/category_donut_chart.dart';
@@ -43,8 +45,8 @@ const _monthNames = [
 
 /// Tela inicial com resumo financeiro, gráficos e últimas transações (S4).
 ///
-/// Desktop: fundo claro com cards escuros (mockup img1).
-/// Mobile: fundo escuro com card hero em gradiente roxo (mockup img2).
+/// Desktop e mobile seguem o tema escuro do app;
+/// o hero mobile usa gradiente roxo (mockup img2).
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -53,6 +55,10 @@ class DashboardScreen extends ConsumerWidget {
     final transactions = ref.watch(transactionsProvider);
     final categories = ref.watch(categoriesProvider);
     final accounts = ref.watch(accountsProvider);
+    final fixedExpenses =
+        ref.watch(fixedExpensesProvider).valueOrNull ?? const <FixedExpenseEntity>[];
+    final fixedPayments = ref.watch(fixedPaymentsProvider).valueOrNull ??
+        const <FixedExpensePaymentEntity>[];
 
     return transactions.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -74,12 +80,16 @@ class DashboardScreen extends ConsumerWidget {
                 items: items,
                 categoriesById: categoriesById,
                 accountsById: accountsById,
+                fixedExpenses: fixedExpenses,
+                fixedPayments: fixedPayments,
               );
             }
             return _MobileDashboard(
               items: items,
               categoriesById: categoriesById,
               accountsById: accountsById,
+              fixedExpenses: fixedExpenses,
+              fixedPayments: fixedPayments,
             );
           },
         );
@@ -88,17 +98,21 @@ class DashboardScreen extends ConsumerWidget {
   }
 }
 
-/// Layout desktop do dashboard (mockup img1): fundo claro + cards escuros.
+/// Layout desktop do dashboard: fundo escuro padrão do app + cards escuros.
 class _DesktopDashboard extends StatelessWidget {
   const _DesktopDashboard({
     required this.items,
     required this.categoriesById,
     required this.accountsById,
+    required this.fixedExpenses,
+    required this.fixedPayments,
   });
 
   final List<TransactionEntity> items;
   final Map<int, CategoryEntity> categoriesById;
   final Map<int, AccountEntity> accountsById;
+  final List<FixedExpenseEntity> fixedExpenses;
+  final List<FixedExpensePaymentEntity> fixedPayments;
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +124,7 @@ class _DesktopDashboard extends StatelessWidget {
     final lastDay = DateTime(now.year, now.month + 1, 0).day;
 
     return Container(
-      color: AppColors.canvasLight,
+      color: AppColors.background,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -128,7 +142,7 @@ class _DesktopDashboard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.textDark,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       SizedBox(height: 4),
@@ -136,7 +150,7 @@ class _DesktopDashboard extends StatelessWidget {
                         'Visão geral das suas finanças',
                         style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.textDarkSecondary,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -148,7 +162,7 @@ class _DesktopDashboard extends StatelessWidget {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: AppColors.cardDark,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -156,7 +170,7 @@ class _DesktopDashboard extends StatelessWidget {
                       const Icon(
                         Icons.calendar_today_outlined,
                         size: 14,
-                        color: AppColors.textDarkSecondary,
+                        color: AppColors.textSecondary,
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -164,7 +178,7 @@ class _DesktopDashboard extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textDark,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                     ],
@@ -174,6 +188,12 @@ class _DesktopDashboard extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             _SummaryCards(metrics: metrics),
+            const SizedBox(height: 16),
+            _FixosCard(
+              fixedExpenses: fixedExpenses,
+              fixedPayments: fixedPayments,
+              metrics: metrics,
+            ),
             const SizedBox(height: 16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,11 +250,15 @@ class _MobileDashboard extends StatefulWidget {
     required this.items,
     required this.categoriesById,
     required this.accountsById,
+    required this.fixedExpenses,
+    required this.fixedPayments,
   });
 
   final List<TransactionEntity> items;
   final Map<int, CategoryEntity> categoriesById;
   final Map<int, AccountEntity> accountsById;
+  final List<FixedExpenseEntity> fixedExpenses;
+  final List<FixedExpensePaymentEntity> fixedPayments;
 
   @override
   State<_MobileDashboard> createState() => _MobileDashboardState();
@@ -289,6 +313,12 @@ class _MobileDashboardState extends State<_MobileDashboard> {
           ),
           const SizedBox(height: 12),
           _SavingsCard(value: formatCents(metrics.savings), rate: savingsRate),
+          const SizedBox(height: 12),
+          _FixosCard(
+            fixedExpenses: widget.fixedExpenses,
+            fixedPayments: widget.fixedPayments,
+            metrics: metrics,
+          ),
           const SizedBox(height: 12),
           _ChartCard(
             title: 'Gastos por categoria',
@@ -370,6 +400,216 @@ class _SummaryCards extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// Card dos lançamentos fixos do mês com quanto sobra livre (S9).
+///
+/// O "livre" parte da economia do mês, desconta os fixos pendentes e soma
+/// as receitas fixas ainda pendentes (ex.: salário a receber), refletindo
+/// a expectativa real de quanto sobra até o fim do mês.
+class _FixosCard extends StatelessWidget {
+  const _FixosCard({
+    required this.fixedExpenses,
+    required this.fixedPayments,
+    required this.metrics,
+  });
+
+  final List<FixedExpenseEntity> fixedExpenses;
+  final List<FixedExpensePaymentEntity> fixedPayments;
+  final DashboardMetrics metrics;
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final monthKey = '${now.year.toString().padLeft(4, '0')}-'
+        '${now.month.toString().padLeft(2, '0')}';
+    final paidIds = {
+      for (final payment in fixedPayments)
+        if (payment.month == monthKey) payment.fixedId,
+    };
+    var total = 0;
+    var paid = 0;
+    var pendingNet = 0;
+    for (final fixed in fixedExpenses) {
+      total += fixed.amount;
+      if (paidIds.contains(fixed.id)) {
+        paid += fixed.amount;
+      } else {
+        // Pendentes: receitas somam (salário a receber), despesas descontam.
+        pendingNet += fixed.isIncome ? fixed.amount : -fixed.amount;
+      }
+    }
+    final pending = total - paid;
+    final free = metrics.income - metrics.expenses + pendingNet;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.cardDark,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.event_repeat_outlined,
+                size: 16,
+                color: AppColors.primaryLight,
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  'Fixos de ${_monthNames[now.month - 1]}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ),
+              const Spacer(),
+              const Text(
+                'Livre no mês: ',
+                style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
+              Text(
+                formatCents(free),
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: free >= 0 ? AppColors.income : AppColors.expense,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          if (fixedExpenses.isEmpty)
+            const Text(
+              'Cadastre aluguel, internet ou salário na aba Fixos para '
+              'acompanhar aqui o que já foi pago e quanto sobra no mês.',
+              style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            )
+          else ...[
+            Row(
+              children: [
+                _FixosStat(
+                  label: 'Total',
+                  value: total,
+                  color: AppColors.textPrimary,
+                ),
+                _FixosStat(
+                  label: 'Pago',
+                  value: paid,
+                  color: AppColors.income,
+                ),
+                _FixosStat(
+                  label: 'Pendente',
+                  value: pending,
+                  color: pending > 0 ? AppColors.warning : AppColors.income,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final fixed in fixedExpenses)
+                  _FixedChip(
+                    name: fixed.description ?? 'Sem descrição',
+                    amount: fixed.amount,
+                    paid: paidIds.contains(fixed.id),
+                  ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Uma coluna de valor do resumo de fixos (total, pago, pendente).
+class _FixosStat extends StatelessWidget {
+  const _FixosStat({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final String label;
+  final int value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            formatCents(value),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Chip de um lançamento fixo com status pago/pendente do mês.
+class _FixedChip extends StatelessWidget {
+  const _FixedChip({
+    required this.name,
+    required this.amount,
+    required this.paid,
+  });
+
+  final String name;
+  final int amount;
+  final bool paid;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            paid ? Icons.check_circle : Icons.schedule,
+            size: 14,
+            color: paid ? AppColors.income : AppColors.warning,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            name,
+            style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            formatCents(amount),
+            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -978,7 +1218,7 @@ class _GoalProgressTile extends ConsumerWidget {
   }
 }
 
-/// Faixa inferior de insights automáticos em cards claros (mockup img1).
+/// Faixa inferior de insights automáticos.
 class _InsightsStrip extends StatelessWidget {
   const _InsightsStrip({required this.items, required this.categoriesById});
 
@@ -1001,7 +1241,7 @@ class _InsightsStrip extends StatelessWidget {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: AppColors.textDark,
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -1022,7 +1262,7 @@ class _InsightsStrip extends StatelessWidget {
   }
 }
 
-/// Card claro de um insight com ícone colorido por tipo.
+/// Card de um insight com ícone colorido por tipo.
 class _InsightCard extends StatelessWidget {
   const _InsightCard({required this.insight});
 
@@ -1038,7 +1278,7 @@ class _InsightCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardDark,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -1052,7 +1292,7 @@ class _InsightCard extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 height: 1.4,
-                color: AppColors.textDark,
+                color: AppColors.textPrimary,
               ),
             ),
           ),

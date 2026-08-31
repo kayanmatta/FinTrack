@@ -23,7 +23,7 @@ class BackupFileManagerImpl implements BackupFileManager {
   Future<String?> saveBackup(String suggestedName, String content) async {
     // No file_picker 12+, o próprio plugin grava os bytes no destino escolhido.
     final uri = await FilePicker.saveFile(
-      dialogTitle: 'Salvar backup do FinTrack',
+      dialogTitle: 'Salvar backup do Centivo',
       fileName: suggestedName,
       bytes: utf8.encode(content),
       mimeType: 'application/json',
@@ -34,7 +34,7 @@ class BackupFileManagerImpl implements BackupFileManager {
   @override
   Future<String?> readBackup() async {
     final file = await FilePicker.pickFile(
-      dialogTitle: 'Selecionar backup do FinTrack',
+      dialogTitle: 'Selecionar backup do Centivo',
       type: FileType.custom,
       allowedExtensions: const ['json'],
     );
